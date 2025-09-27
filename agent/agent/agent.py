@@ -71,7 +71,7 @@ def list_sheet_names(sheet_id: Annotated[str, "Google Sheets ID to list availabl
 # --- Frontend tool stubs (names/signatures only; execution happens in the UI) ---
 
 def createItem(
-    type: Annotated[str, "One of: project, entity, note, chart."],
+    type: Annotated[str, "One of: project, entity, note, chart, deal."],
     name: Annotated[Optional[str], "Optional item name."] = None,
 ) -> str:
     """Create a new canvas item and return its id."""
@@ -170,6 +170,64 @@ def addEntityField3(tag: Annotated[str, "Tag to add."], itemId: Annotated[str, "
 def removeEntityField3(tag: Annotated[str, "Tag to remove."], itemId: Annotated[str, "Entity id."]) -> str:
     return f"removeEntityField3({tag}, {itemId})"
 
+def setEntityField4(value: Annotated[str, "New value for entity.data.field4 (engagement score 0-100)."], itemId: Annotated[str, "Entity id."]) -> str:
+    return f"setEntityField4({value}, {itemId})"
+
+def setEntityField5(value: Annotated[str, "New value for entity.data.field5 (decision maker influence)."], itemId: Annotated[str, "Entity id."]) -> str:
+    return f"setEntityField5({value}, {itemId})"
+
+def setEntityField6(value: Annotated[str, "New value for entity.data.field6 (communication preferences)."], itemId: Annotated[str, "Entity id."]) -> str:
+    return f"setEntityField6({value}, {itemId})"
+
+# Deal actions
+def setDealField1(value: Annotated[str, "New value for deal.data.field1 (deal name/company)."], itemId: Annotated[str, "Deal id."]) -> str:
+    return f"setDealField1({value}, {itemId})"
+
+def setDealField2(value: Annotated[str, "New value for deal.data.field2 (stage)."], itemId: Annotated[str, "Deal id."]) -> str:
+    return f"setDealField2({value}, {itemId})"
+
+def setDealField3(value: Annotated[str, "New value for deal.data.field3 (close date)."], itemId: Annotated[str, "Deal id."]) -> str:
+    return f"setDealField3({value}, {itemId})"
+
+def setDealField5(value: Annotated[str, "New value for deal.data.field5 (AI confidence score 0-100)."], itemId: Annotated[str, "Deal id."]) -> str:
+    return f"setDealField5({value}, {itemId})"
+
+def addDealField4Touchpoint(itemId: Annotated[str, "Deal id."], type: Annotated[str, "Touchpoint type."], description: Annotated[Optional[str], "Touchpoint description."] = None) -> str:
+    return f"addDealField4Touchpoint({itemId}, {type}, {description})"
+
+def setDealField4TouchpointType(itemId: Annotated[str, "Deal id."], touchpointId: Annotated[str, "Touchpoint id."], type: Annotated[str, "New touchpoint type."]) -> str:
+    return f"setDealField4TouchpointType({itemId}, {touchpointId}, {type})"
+
+def setDealField4TouchpointDescription(itemId: Annotated[str, "Deal id."], touchpointId: Annotated[str, "Touchpoint id."], description: Annotated[str, "New touchpoint description."]) -> str:
+    return f"setDealField4TouchpointDescription({itemId}, {touchpointId}, {description})"
+
+def removeDealField4Touchpoint(itemId: Annotated[str, "Deal id."], touchpointId: Annotated[str, "Touchpoint id."]) -> str:
+    return f"removeDealField4Touchpoint({itemId}, {touchpointId})"
+
+def addDealField6Action(itemId: Annotated[str, "Deal id."], action: Annotated[str, "Action description."], priority: Annotated[Optional[str], "Action priority (high/medium/low)."] = None) -> str:
+    return f"addDealField6Action({itemId}, {action}, {priority})"
+
+def setDealField6ActionText(itemId: Annotated[str, "Deal id."], actionId: Annotated[str, "Action id."], action: Annotated[str, "New action text."]) -> str:
+    return f"setDealField6ActionText({itemId}, {actionId}, {action})"
+
+def setDealField6ActionPriority(itemId: Annotated[str, "Deal id."], actionId: Annotated[str, "Action id."], priority: Annotated[str, "New action priority."]) -> str:
+    return f"setDealField6ActionPriority({itemId}, {actionId}, {priority})"
+
+def removeDealField6Action(itemId: Annotated[str, "Deal id."], actionId: Annotated[str, "Action id."]) -> str:
+    return f"removeDealField6Action({itemId}, {actionId})"
+
+def addDealField7Competitor(itemId: Annotated[str, "Deal id."], name: Annotated[str, "Competitor name."], threat: Annotated[Optional[str], "Threat level (high/medium/low)."] = None) -> str:
+    return f"addDealField7Competitor({itemId}, {name}, {threat})"
+
+def setDealField7CompetitorName(itemId: Annotated[str, "Deal id."], competitorId: Annotated[str, "Competitor id."], name: Annotated[str, "New competitor name."]) -> str:
+    return f"setDealField7CompetitorName({itemId}, {competitorId}, {name})"
+
+def setDealField7CompetitorThreat(itemId: Annotated[str, "Deal id."], competitorId: Annotated[str, "Competitor id."], threat: Annotated[str, "New threat level."]) -> str:
+    return f"setDealField7CompetitorThreat({itemId}, {competitorId}, {threat})"
+
+def removeDealField7Competitor(itemId: Annotated[str, "Deal id."], competitorId: Annotated[str, "Competitor id."]) -> str:
+    return f"removeDealField7Competitor({itemId}, {competitorId})"
+
 # Chart actions
 def addChartField1(
     itemId: Annotated[str, "Chart id."],
@@ -219,10 +277,21 @@ FIELD_SCHEMA = (
     "  - field2: string (select: 'Option A' | 'Option B' | 'Option C')\n"
     "  - field3: string[] (selected tags; subset of field3_options)\n"
     "  - field3_options: string[] (available tags)\n"
+    "  - field4: number | '' (engagement score 0-100)\n"
+    "  - field5: string (decision maker influence: 'High' | 'Medium' | 'Low' | 'Unknown')\n"
+    "  - field6: string (communication preferences)\n"
     "- note.data:\n"
     "  - field1: string (textarea; represents description)\n"
     "- chart.data:\n"
     "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''\n"
+    "- deal.data:\n"
+    "  - field1: string (deal name/company)\n"
+    "  - field2: string (stage: 'Lead' | 'Qualified' | 'Proposal' | 'Negotiation' | 'Closed-Won' | 'Closed-Lost')\n"
+    "  - field3: string (close date 'YYYY-MM-DD')\n"
+    "  - field4: Array<{id: string, type: string, description: string, date: string}> (deal activities/touchpoints)\n"
+    "  - field5: number | '' (AI confidence score 0-100)\n"
+    "  - field6: Array<{id: string, action: string, priority: 'high' | 'medium' | 'low'}> (next best actions)\n"
+    "  - field7: Array<{id: string, name: string, threat: 'high' | 'medium' | 'low'}> (competitive intelligence)\n"
 )
 
 SYSTEM_PROMPT = (
@@ -230,7 +299,7 @@ SYSTEM_PROMPT = (
     + FIELD_SCHEMA +
     "\nMUTATION/TOOL POLICY:\n"
     "- When you claim to create/update/delete, you MUST call the corresponding tool(s) (frontend or backend).\n"
-    "- To create new cards, call the frontend tool `createItem` with `type` in {project, entity, note, chart} and optional `name`.\n"
+    "- To create new cards, call the frontend tool `createItem` with `type` in {project, entity, note, chart, deal} and optional `name`.\n"
     "- After tools run, rely on the latest shared state (ground truth) when replying.\n"
     "- To set a card's subtitle (never the data fields): use setItemSubtitleOrDescription.\n\n"
     "DESCRIPTION MAPPING:\n"
@@ -306,6 +375,25 @@ agentic_chat_router = get_ag_ui_workflow_router(
         setEntityField2,
         addEntityField3,
         removeEntityField3,
+        setEntityField4,
+        setEntityField5,
+        setEntityField6,
+        setDealField1,
+        setDealField2,
+        setDealField3,
+        setDealField5,
+        addDealField4Touchpoint,
+        setDealField4TouchpointType,
+        setDealField4TouchpointDescription,
+        removeDealField4Touchpoint,
+        addDealField6Action,
+        setDealField6ActionText,
+        setDealField6ActionPriority,
+        removeDealField6Action,
+        addDealField7Competitor,
+        setDealField7CompetitorName,
+        setDealField7CompetitorThreat,
+        removeDealField7Competitor,
         addChartField1,
         setChartField1Label,
         setChartField1Value,

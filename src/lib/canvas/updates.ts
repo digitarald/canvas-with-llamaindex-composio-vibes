@@ -1,4 +1,4 @@
-import { ChartData, ProjectData } from "@/lib/canvas/types";
+import { ChartData, ProjectData, DealData } from "@/lib/canvas/types";
 
 export function projectAddField4Item(data: ProjectData, text?: string): { next: ProjectData; createdId: string } {
   const existing = data.field4 ?? [];
@@ -64,6 +64,89 @@ export function chartRemoveField1Metric(data: ChartData, index: number): ChartDa
     return { ...data, field1: next } as ChartData;
   }
   return data;
+}
+
+// Deal update functions
+export function dealAddField4Touchpoint(data: DealData, type: string, description?: string): { next: DealData; createdId: string } {
+  const existing = data.field4 ?? [];
+  const nextCount = (data.field4_id ?? 0) + 1;
+  const id = String(nextCount).padStart(3, "0");
+  const next = [...existing, { 
+    id, 
+    type: type || "email", 
+    description: description ?? "", 
+    date: new Date().toISOString().split('T')[0]
+  }];
+  return { next: { ...data, field4: next, field4_id: nextCount }, createdId: id };
+}
+
+export function dealSetField4TouchpointType(data: DealData, touchpointId: string, type: string): DealData {
+  const next = (data.field4 ?? []).map((item) => (item.id === touchpointId ? { ...item, type } : item));
+  return { ...data, field4: next } as DealData;
+}
+
+export function dealSetField4TouchpointDescription(data: DealData, touchpointId: string, description: string): DealData {
+  const next = (data.field4 ?? []).map((item) => (item.id === touchpointId ? { ...item, description } : item));
+  return { ...data, field4: next } as DealData;
+}
+
+export function dealRemoveField4Touchpoint(data: DealData, touchpointId: string): DealData {
+  const next = (data.field4 ?? []).filter((item) => item.id !== touchpointId);
+  return { ...data, field4: next } as DealData;
+}
+
+export function dealAddField6Action(data: DealData, action: string, priority?: string): { next: DealData; createdId: string } {
+  const existing = data.field6 ?? [];
+  const nextCount = (data.field6_id ?? 0) + 1;
+  const id = String(nextCount).padStart(3, "0");
+  const next = [...existing, { 
+    id, 
+    action: action || "", 
+    priority: (priority as "high" | "medium" | "low") || "medium"
+  }];
+  return { next: { ...data, field6: next, field6_id: nextCount }, createdId: id };
+}
+
+export function dealSetField6ActionText(data: DealData, actionId: string, action: string): DealData {
+  const next = (data.field6 ?? []).map((item) => (item.id === actionId ? { ...item, action } : item));
+  return { ...data, field6: next } as DealData;
+}
+
+export function dealSetField6ActionPriority(data: DealData, actionId: string, priority: "high" | "medium" | "low"): DealData {
+  const next = (data.field6 ?? []).map((item) => (item.id === actionId ? { ...item, priority } : item));
+  return { ...data, field6: next } as DealData;
+}
+
+export function dealRemoveField6Action(data: DealData, actionId: string): DealData {
+  const next = (data.field6 ?? []).filter((item) => item.id !== actionId);
+  return { ...data, field6: next } as DealData;
+}
+
+export function dealAddField7Competitor(data: DealData, name: string, threat?: string): { next: DealData; createdId: string } {
+  const existing = data.field7 ?? [];
+  const nextCount = (data.field7_id ?? 0) + 1;
+  const id = String(nextCount).padStart(3, "0");
+  const next = [...existing, { 
+    id, 
+    name: name || "", 
+    threat: (threat as "high" | "medium" | "low") || "medium"
+  }];
+  return { next: { ...data, field7: next, field7_id: nextCount }, createdId: id };
+}
+
+export function dealSetField7CompetitorName(data: DealData, competitorId: string, name: string): DealData {
+  const next = (data.field7 ?? []).map((item) => (item.id === competitorId ? { ...item, name } : item));
+  return { ...data, field7: next } as DealData;
+}
+
+export function dealSetField7CompetitorThreat(data: DealData, competitorId: string, threat: "high" | "medium" | "low"): DealData {
+  const next = (data.field7 ?? []).map((item) => (item.id === competitorId ? { ...item, threat } : item));
+  return { ...data, field7: next } as DealData;
+}
+
+export function dealRemoveField7Competitor(data: DealData, competitorId: string): DealData {
+  const next = (data.field7 ?? []).filter((item) => item.id !== competitorId);
+  return { ...data, field7: next } as DealData;
 }
 
 

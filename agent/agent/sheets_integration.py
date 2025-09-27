@@ -250,6 +250,19 @@ def create_default_data(item_type: str) -> Dict[str, Any]:
             "field1": [],
             "field1_id": 0,
         }
+    elif item_type == "deal":
+        return {
+            "field1": "",
+            "field2": "",
+            "field3": "",
+            "field4": [],
+            "field4_id": 0,
+            "field5": "",
+            "field6": [],
+            "field6_id": 0,
+            "field7": [],
+            "field7_id": 0,
+        }
     else:
         return {"field1": ""}
 
@@ -262,8 +275,13 @@ def determine_item_type(row: List[str], headers: List[str]) -> str:
         headers: List of header names
         
     Returns:
-        One of: 'project', 'entity', 'note', 'chart'
+        One of: 'project', 'entity', 'note', 'chart', 'deal'
     """
+    # Look for deal patterns - suggests deal
+    deal_indicators = ['deal', 'opportunity', 'sales', 'pipeline', 'lead', 'prospect', 'close', 'stage', 'revenue', 'value']
+    if any(indicator in ' '.join(headers).lower() for indicator in deal_indicators):
+        return "deal"
+    
     # Look for date patterns - suggests project
     date_indicators = ['date', 'due', 'deadline', 'start', 'end', 'created']
     if any(indicator in ' '.join(headers).lower() for indicator in date_indicators):

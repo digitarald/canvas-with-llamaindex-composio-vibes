@@ -3,7 +3,7 @@ import {
   ExperimentalEmptyAdapter,
   copilotRuntimeNextJSAppRouterEndpoint,
 } from "@copilotkit/runtime";
-import { LlamaIndexAgent } from "@ag-ui/llamaindex";
+// import { LlamaIndexAgent } from "@ag-ui/llamaindex";
 
 import { NextRequest } from "next/server";
 
@@ -11,9 +11,10 @@ export async function POST(request: NextRequest) {
  
   const runtime = new CopilotRuntime({
     agents: {
-      sample_agent: new LlamaIndexAgent({
-        url: "http://127.0.0.1:9000/run",
-      })
+      // Temporarily disabled due to library compatibility issues
+      // sample_agent: new LlamaIndexAgent({
+      //   url: "http://127.0.0.1:9000/run",
+      // })
     }
   })
 

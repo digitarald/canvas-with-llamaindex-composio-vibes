@@ -190,6 +190,96 @@ def clearChartField1Value(itemId: Annotated[str, "Chart id."], index: Annotated[
 def removeChartField1(itemId: Annotated[str, "Chart id."], index: Annotated[int, "Metric index (0-based)."]) -> str:
     return f"removeChartField1({itemId}, {index})"
 
+# Service actions
+def setServiceField1(value: Annotated[str, "Service endpoint/URL."], itemId: Annotated[str, "Service id."]) -> str:
+    return f"setServiceField1({value}, {itemId})"
+
+def setServiceField2(value: Annotated[str, "Health status: healthy|warning|critical|unknown."], itemId: Annotated[str, "Service id."]) -> str:
+    return f"setServiceField2({value}, {itemId})"
+
+def setServiceField3(value: Annotated[str, "Version/deployment info."], itemId: Annotated[str, "Service id."]) -> str:
+    return f"setServiceField3({value}, {itemId})"
+
+def setServiceField4(value: Annotated[str, "Resource usage metrics."], itemId: Annotated[str, "Service id."]) -> str:
+    return f"setServiceField4({value}, {itemId})"
+
+# Database actions
+def setDatabaseField1(value: Annotated[str, "Database name/connection string."], itemId: Annotated[str, "Database id."]) -> str:
+    return f"setDatabaseField1({value}, {itemId})"
+
+def setDatabaseField2(value: Annotated[str, "Health status: healthy|warning|critical|unknown."], itemId: Annotated[str, "Database id."]) -> str:
+    return f"setDatabaseField2({value}, {itemId})"
+
+def setDatabaseField3(value: Annotated[str, "Database type (PostgreSQL, MongoDB, etc.)."], itemId: Annotated[str, "Database id."]) -> str:
+    return f"setDatabaseField3({value}, {itemId})"
+
+def setDatabaseField4(value: Annotated[str, "Connection pool info."], itemId: Annotated[str, "Database id."]) -> str:
+    return f"setDatabaseField4({value}, {itemId})"
+
+def setDatabaseField5(value: Annotated[str, "Query performance metrics."], itemId: Annotated[str, "Database id."]) -> str:
+    return f"setDatabaseField5({value}, {itemId})"
+
+# Message Queue actions
+def setMessageQueueField1(value: Annotated[str, "Queue/topic name."], itemId: Annotated[str, "Message queue id."]) -> str:
+    return f"setMessageQueueField1({value}, {itemId})"
+
+def setMessageQueueField2(value: Annotated[str, "Health status: healthy|warning|critical|unknown."], itemId: Annotated[str, "Message queue id."]) -> str:
+    return f"setMessageQueueField2({value}, {itemId})"
+
+def setMessageQueueField3(value: Annotated[str, "Queue type (RabbitMQ, Kafka, etc.)."], itemId: Annotated[str, "Message queue id."]) -> str:
+    return f"setMessageQueueField3({value}, {itemId})"
+
+def setMessageQueueField4(value: Annotated[str, "Throughput metrics."], itemId: Annotated[str, "Message queue id."]) -> str:
+    return f"setMessageQueueField4({value}, {itemId})"
+
+# API Gateway actions
+def setApiGatewayField1(value: Annotated[str, "Gateway name/endpoint."], itemId: Annotated[str, "API gateway id."]) -> str:
+    return f"setApiGatewayField1({value}, {itemId})"
+
+def setApiGatewayField2(value: Annotated[str, "Health status: healthy|warning|critical|unknown."], itemId: Annotated[str, "API gateway id."]) -> str:
+    return f"setApiGatewayField2({value}, {itemId})"
+
+def setApiGatewayField3(value: Annotated[str, "Routing rules summary."], itemId: Annotated[str, "API gateway id."]) -> str:
+    return f"setApiGatewayField3({value}, {itemId})"
+
+def setApiGatewayField4(value: Annotated[str, "Rate limits."], itemId: Annotated[str, "API gateway id."]) -> str:
+    return f"setApiGatewayField4({value}, {itemId})"
+
+def setApiGatewayField5(value: Annotated[str, "Traffic distribution."], itemId: Annotated[str, "API gateway id."]) -> str:
+    return f"setApiGatewayField5({value}, {itemId})"
+
+# External Service actions
+def setExternalServiceField1(value: Annotated[str, "Service name/API."], itemId: Annotated[str, "External service id."]) -> str:
+    return f"setExternalServiceField1({value}, {itemId})"
+
+def setExternalServiceField2(value: Annotated[str, "Health status: healthy|warning|critical|unknown."], itemId: Annotated[str, "External service id."]) -> str:
+    return f"setExternalServiceField2({value}, {itemId})"
+
+def setExternalServiceField3(value: Annotated[str, "Service type (SaaS, third-party API, etc.)."], itemId: Annotated[str, "External service id."]) -> str:
+    return f"setExternalServiceField3({value}, {itemId})"
+
+def setExternalServiceField4(value: Annotated[str, "SLA/uptime info."], itemId: Annotated[str, "External service id."]) -> str:
+    return f"setExternalServiceField4({value}, {itemId})"
+
+def setExternalServiceField5(value: Annotated[str, "Integration details."], itemId: Annotated[str, "External service id."]) -> str:
+    return f"setExternalServiceField5({value}, {itemId})"
+
+# Issue actions
+def setIssueField1(value: Annotated[str, "Issue title/description."], itemId: Annotated[str, "Issue id."]) -> str:
+    return f"setIssueField1({value}, {itemId})"
+
+def setIssueField2(value: Annotated[str, "Severity: critical|high|medium|low."], itemId: Annotated[str, "Issue id."]) -> str:
+    return f"setIssueField2({value}, {itemId})"
+
+def setIssueField3(value: Annotated[str, "Status: open|investigating|resolved."], itemId: Annotated[str, "Issue id."]) -> str:
+    return f"setIssueField3({value}, {itemId})"
+
+def setIssueField4(value: Annotated[str, "Affected services."], itemId: Annotated[str, "Issue id."]) -> str:
+    return f"setIssueField4({value}, {itemId})"
+
+def setIssueField5(value: Annotated[str, "Resolution notes."], itemId: Annotated[str, "Issue id."]) -> str:
+    return f"setIssueField5({value}, {itemId})"
+
 def openSheetSelectionModal() -> str:
     """Open modal for selecting Google Sheets."""
     return "openSheetSelectionModal()"
@@ -223,14 +313,78 @@ FIELD_SCHEMA = (
     "  - field1: string (textarea; represents description)\n"
     "- chart.data:\n"
     "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''\n"
+    "- service.data:\n"
+    "  - field1: string (service endpoint/URL)\n"
+    "  - field2: string (health status: 'healthy' | 'warning' | 'critical' | 'unknown')\n"
+    "  - field3: string (version/deployment info)\n"
+    "  - field4: string (resource usage metrics)\n"
+    "  - field5: string[] (dependencies/connected services)\n"
+    "- database.data:\n"
+    "  - field1: string (database name/connection string)\n"
+    "  - field2: string (health status: 'healthy' | 'warning' | 'critical' | 'unknown')\n"
+    "  - field3: string (database type: PostgreSQL, MongoDB, etc.)\n"
+    "  - field4: string (connection pool info)\n"
+    "  - field5: string (query performance metrics)\n"
+    "- message-queue.data:\n"
+    "  - field1: string (queue/topic name)\n"
+    "  - field2: string (health status: 'healthy' | 'warning' | 'critical' | 'unknown')\n"
+    "  - field3: string (queue type: RabbitMQ, Kafka, etc.)\n"
+    "  - field4: string (throughput metrics)\n"
+    "  - field5: string[] (connected services)\n"
+    "- api-gateway.data:\n"
+    "  - field1: string (gateway name/endpoint)\n"
+    "  - field2: string (health status: 'healthy' | 'warning' | 'critical' | 'unknown')\n"
+    "  - field3: string (routing rules summary)\n"
+    "  - field4: string (rate limits)\n"
+    "  - field5: string (traffic distribution)\n"
+    "- external-service.data:\n"
+    "  - field1: string (service name/API)\n"
+    "  - field2: string (health status: 'healthy' | 'warning' | 'critical' | 'unknown')\n"
+    "  - field3: string (service type: SaaS, third-party API, etc.)\n"
+    "  - field4: string (SLA/uptime info)\n"
+    "  - field5: string (integration details)\n"
+    "- issue.data:\n"
+    "  - field1: string (issue title/description)\n"
+    "  - field2: string (severity: 'critical' | 'high' | 'medium' | 'low')\n"
+    "  - field3: string (status: 'open' | 'investigating' | 'resolved')\n"
+    "  - field4: string (affected services)\n"
+    "  - field5: string (resolution notes)\n"
+)
+
+MICROSERVICES_AI_CAPABILITIES = (
+    "\nMICROSERVICES ARCHITECTURE MAPPER & DEBUGGER:\n"
+    "You are an expert in microservices architecture visualization and debugging.\n\n"
+    "ARCHITECTURE ANALYSIS CAPABILITIES:\n"
+    "- Auto-discover service dependencies from descriptions and suggest connections\n"
+    "- Identify potential bottlenecks and single points of failure\n"
+    "- Detect circular dependencies and anti-patterns\n"
+    "- Suggest architectural improvements and best practices\n"
+    "- Generate realistic health status and metrics based on service types\n"
+    "- Recommend monitoring and alerting strategies\n\n"
+    "SERVICE DISCOVERY & MAPPING:\n"
+    "- When users describe their architecture, automatically create appropriate service cards\n"
+    "- Suggest common microservices patterns (API Gateway → Services → Databases)\n"
+    "- Identify missing components (monitoring, logging, security services)\n"
+    "- Recommend external services for common needs (auth, payments, etc.)\n\n"
+    "DEBUGGING & TROUBLESHOOTING:\n"
+    "- Create issue cards linked to affected services when problems are described\n"
+    "- Suggest root cause analysis based on service topology\n"
+    "- Recommend debugging strategies and tools\n"
+    "- Generate runbooks and incident response procedures\n\n"
+    "REALISTIC DATA GENERATION:\n"
+    "- Generate appropriate health statuses based on service criticality\n"
+    "- Create realistic metrics (response times, throughput, error rates)\n"
+    "- Suggest appropriate connection pool sizes and resource allocations\n"
+    "- Generate meaningful version numbers and deployment info\n\n"
 )
 
 SYSTEM_PROMPT = (
-    "You are a helpful AG-UI assistant.\n\n"
+    "You are a helpful AG-UI assistant specializing in microservices architecture mapping and debugging.\n\n"
     + FIELD_SCHEMA +
+    + MICROSERVICES_AI_CAPABILITIES +
     "\nMUTATION/TOOL POLICY:\n"
     "- When you claim to create/update/delete, you MUST call the corresponding tool(s) (frontend or backend).\n"
-    "- To create new cards, call the frontend tool `createItem` with `type` in {project, entity, note, chart} and optional `name`.\n"
+    "- To create new cards, call the frontend tool `createItem` with `type` in {project, entity, note, chart, service, database, message-queue, api-gateway, external-service, issue} and optional `name`.\n"
     "- After tools run, rely on the latest shared state (ground truth) when replying.\n"
     "- To set a card's subtitle (never the data fields): use setItemSubtitleOrDescription.\n\n"
     "DESCRIPTION MAPPING:\n"
@@ -311,6 +465,34 @@ agentic_chat_router = get_ag_ui_workflow_router(
         setChartField1Value,
         clearChartField1Value,
         removeChartField1,
+        setServiceField1,
+        setServiceField2,
+        setServiceField3,
+        setServiceField4,
+        setDatabaseField1,
+        setDatabaseField2,
+        setDatabaseField3,
+        setDatabaseField4,
+        setDatabaseField5,
+        setMessageQueueField1,
+        setMessageQueueField2,
+        setMessageQueueField3,
+        setMessageQueueField4,
+        setApiGatewayField1,
+        setApiGatewayField2,
+        setApiGatewayField3,
+        setApiGatewayField4,
+        setApiGatewayField5,
+        setExternalServiceField1,
+        setExternalServiceField2,
+        setExternalServiceField3,
+        setExternalServiceField4,
+        setExternalServiceField5,
+        setIssueField1,
+        setIssueField2,
+        setIssueField3,
+        setIssueField4,
+        setIssueField5,
         openSheetSelectionModal,
         setSyncSheetId,
     ],

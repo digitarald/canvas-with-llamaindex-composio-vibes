@@ -12,12 +12,13 @@ import ShikiHighlighter from "react-shiki/web";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import { EmptyState } from "@/components/empty-state";
 import { cn, getContentArg } from "@/lib/utils";
-import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType } from "@/lib/canvas/types";
+import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, ServiceData, DatabaseData, MessageQueueData, ApiGatewayData, ExternalServiceData, IssueData, CardType } from "@/lib/canvas/types";
 import { initialState, isNonEmptyAgentState } from "@/lib/canvas/state";
 import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric } from "@/lib/canvas/updates";
 import useMediaQuery from "@/hooks/use-media-query";
 import ItemHeader from "@/components/canvas/ItemHeader";
 import NewItemMenu from "@/components/canvas/NewItemMenu";
+import ConnectionLines from "@/components/canvas/ConnectionLines";
 
 export default function CopilotKitPage() {
   const { state, setState } = useCoAgent<AgentState>({
@@ -342,6 +343,54 @@ export default function CopilotKitPage() {
         return { field1: "" } as NoteData;
       case "chart":
         return { field1: [], field1_id: 0 } as ChartData;
+      case "service":
+        return {
+          field1: "",
+          field2: "unknown",
+          field3: "",
+          field4: "",
+          field5: [],
+        } as ServiceData;
+      case "database":
+        return {
+          field1: "",
+          field2: "unknown",
+          field3: "",
+          field4: "",
+          field5: "",
+        } as DatabaseData;
+      case "message-queue":
+        return {
+          field1: "",
+          field2: "unknown",
+          field3: "",
+          field4: "",
+          field5: [],
+        } as MessageQueueData;
+      case "api-gateway":
+        return {
+          field1: "",
+          field2: "unknown",
+          field3: "",
+          field4: "",
+          field5: "",
+        } as ApiGatewayData;
+      case "external-service":
+        return {
+          field1: "",
+          field2: "unknown",
+          field3: "",
+          field4: "",
+          field5: "",
+        } as ExternalServiceData;
+      case "issue":
+        return {
+          field1: "",
+          field2: "",
+          field3: "",
+          field4: "",
+          field5: "",
+        } as IssueData;
       default:
         return { content: "" } as NoteData;
     }
@@ -1109,9 +1158,11 @@ export default function CopilotKitPage() {
               console.log("Successfully synced existing items to new sheet");
               // Set the newly created sheet as the sync target and update title/description
               setState((prev) => ({ 
-                ...prev,
+                items: prev?.items || [],
                 globalTitle: result.title || title.trim(),
                 globalDescription: `Connected to Google Sheet: ${result.title || title.trim()}`,
+                lastAction: prev?.lastAction || "",
+                itemsCreated: prev?.itemsCreated || 0,
                 syncSheetId: sheetId,
                 syncSheetName: "Sheet1" 
               }));
@@ -1414,9 +1465,10 @@ export default function CopilotKitPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="grid gap-6 lg:grid-cols-2 pb-20">
+                    <div className="relative grid gap-6 lg:grid-cols-2 pb-20">
+                      <ConnectionLines items={viewState.items ?? []} />
                       {(viewState.items ?? []).map((item) => (
-                        <article key={item.id} className="relative rounded-2xl border p-5 shadow-sm transition-colors ease-out bg-card hover:border-accent/40 focus-within:border-accent/60">
+                        <article key={item.id} data-item-id={item.id} className="relative rounded-2xl border p-5 shadow-sm transition-colors ease-out bg-card hover:border-accent/40 focus-within:border-accent/60 z-10">
                           <button
                             type="button"
                             aria-label="Delete card"
@@ -1680,7 +1732,7 @@ export default function CopilotKitPage() {
               
               <div className="text-xs text-gray-500 space-y-1">
                 <p>📄 <strong>Create New:</strong> Creates a fresh sheet and opens it in a new tab. Current canvas items will be synced automatically.</p>
-                <p>💡 <strong>Import Existing:</strong> Make sure your sheet is publicly accessible or you're signed in to Composio with the right Google account.</p>
+                <p>💡 <strong>Import Existing:</strong> Make sure your sheet is publicly accessible or you&apos;re signed in to Composio with the right Google account.</p>
                 <p>🤖 The system will analyze your data and create the best card types (projects, entities, notes, or charts).</p>
               </div>
             </div>
@@ -1717,7 +1769,7 @@ export default function CopilotKitPage() {
               
               <p className="text-sm text-gray-600">
                 Importing will completely replace your current canvas data with the sheet contents. 
-                Your current canvas items will be lost unless you've saved them elsewhere.
+                Your current canvas items will be lost unless you&apos;ve saved them elsewhere.
               </p>
               
               <div className="flex gap-2">

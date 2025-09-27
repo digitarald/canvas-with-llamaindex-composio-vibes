@@ -5,7 +5,7 @@ import { X, Plus } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Progress } from "@/components/ui/progress";
 import type { ChartData, EntityData, Item, ItemData, NoteData, ProjectData, InvestorData, UpdateData, FeedbackData, MilestoneData } from "@/lib/canvas/types";
-import { chartAddField1Metric, chartRemoveField1Metric, chartSetField1Label, chartSetField1Value, projectAddField4Item, projectRemoveField4Item, projectSetField4ItemDone, projectSetField4ItemText } from "@/lib/canvas/updates";
+import { chartAddField1Metric, chartRemoveField1Metric, chartSetField1Label, chartSetField1Value, projectAddField4Item, projectRemoveField4Item, projectSetField4ItemDone, projectSetField4ItemText, addChecklistField4Item, setChecklistField4ItemText, setChecklistField4ItemDone, removeChecklistField4Item, addMetricsField4Item, setMetricsField4Label, setMetricsField4Value, removeMetricsField4Item } from "@/lib/canvas/updates";
 
 export function CardRenderer(props: {
   item: Item;
@@ -184,9 +184,10 @@ export function CardRenderer(props: {
     );
   }
 
-  const e = item.data as EntityData;
-  const setEntity = (partial: Partial<EntityData>) => onUpdateData((prev) => ({ ...(prev as EntityData), ...partial }));
-  return (
+  if (item.type === "entity") {
+    const e = item.data as EntityData;
+    const setEntity = (partial: Partial<EntityData>) => onUpdateData((prev) => ({ ...(prev as EntityData), ...partial }));
+    return (
     <div className="mt-4">
       <div className="mb-3">
         <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (Text)</label>
@@ -232,7 +233,7 @@ export function CardRenderer(props: {
         </div>
       </div>
     </div>
-  );
+    );
   }
 
   if (item.type === "investor") {
@@ -278,7 +279,7 @@ export function CardRenderer(props: {
             <button
               type="button"
               className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
-              onClick={() => onUpdateData((prev) => projectAddField4Item(prev as InvestorData, "").next)}
+              onClick={() => onUpdateData((prev) => addChecklistField4Item(prev as InvestorData, "").next)}
             >
               <Plus className="size-3.5" />
               Add new
@@ -297,19 +298,19 @@ export function CardRenderer(props: {
                   className="w-5 h-5 rounded border-2 border-gray-300 transition-colors checked:bg-accent checked:border-accent focus:ring-2 focus:ring-accent/50"
                   type="checkbox"
                   checked={c.done}
-                  onChange={(e) => onUpdateData((prev) => projectSetField4ItemDone(prev as InvestorData, i, e.target.checked))}
+                  onChange={(e) => onUpdateData((prev) => setChecklistField4ItemDone(prev as InvestorData, (prev as InvestorData).field4[i].id, e.target.checked))}
                 />
                 <input
                   value={c.text}
                   placeholder="Engagement description..."
-                  onChange={(e) => onUpdateData((prev) => projectSetField4ItemText(prev as InvestorData, i, e.target.value))}
+                  onChange={(e) => onUpdateData((prev) => setChecklistField4ItemText(prev as InvestorData, (prev as InvestorData).field4[i].id, e.target.value))}
                   className="flex-1 rounded-md border px-2 py-1 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
                 />
                 <button
                   type="button"
                   aria-label="Delete engagement"
                   className="text-gray-400 hover:text-accent"
-                  onClick={() => onUpdateData((prev) => projectRemoveField4Item(prev as InvestorData, i))}
+                  onClick={() => onUpdateData((prev) => removeChecklistField4Item(prev as InvestorData, (prev as InvestorData).field4[i].id))}
                 >
                   <X className="h-5 w-5 md:h-6 md:w-6" />
                 </button>
@@ -364,7 +365,7 @@ export function CardRenderer(props: {
             <button
               type="button"
               className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
-              onClick={() => onUpdateData((prev) => chartAddField1Metric(prev as UpdateData, "", "").next)}
+              onClick={() => onUpdateData((prev) => addMetricsField4Item(prev as UpdateData, "", "").next)}
             >
               <Plus className="size-3.5" />
               Add new
@@ -376,7 +377,7 @@ export function CardRenderer(props: {
                 Nothing here yet. Add a metric to get started.
               </div>
             )}
-            {d.field4.map((m, i) => {
+            {(d.field4 ?? []).map((m, i) => {
               const number = String(m.id ?? String(i + 1)).padStart(3, "0");
               return (
               <div key={m.id ?? `metric-${i}`} className="flex items-center gap-3">
@@ -384,7 +385,7 @@ export function CardRenderer(props: {
                 <input
                   value={m.label}
                   placeholder="Metric label"
-                  onChange={(e) => onUpdateData((prev) => chartSetField1Label(prev as UpdateData, i, e.target.value))}
+                  onChange={(e) => onUpdateData((prev) => setMetricsField4Label(prev as UpdateData, i, e.target.value))}
                   className="w-25 rounded-md border px-2 py-1 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
                 />
                 <div className="flex items-center gap-3 flex-1">
@@ -402,14 +403,14 @@ export function CardRenderer(props: {
                   min={0}
                   max={100}
                   value={m.value}
-                  onChange={(e) => onUpdateData((prev) => chartSetField1Value(prev as UpdateData, i, e.target.value === "" ? "" : Number(e.target.value)))}
+                  onChange={(e) => onUpdateData((prev) => setMetricsField4Value(prev as UpdateData, i, e.target.value === "" ? "" : Number(e.target.value)))}
                   placeholder="0"
                 />
                 <button
                   type="button"
                   aria-label="Delete metric"
                   className="text-gray-400 hover:text-accent"
-                  onClick={() => onUpdateData((prev) => chartRemoveField1Metric(prev as UpdateData, i))}
+                  onClick={() => onUpdateData((prev) => removeMetricsField4Item(prev as UpdateData, i))}
                 >
                   <X className="h-5 w-5 md:h-6 md:w-6" />
                 </button>
@@ -464,7 +465,7 @@ export function CardRenderer(props: {
             <button
               type="button"
               className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
-              onClick={() => onUpdateData((prev) => projectAddField4Item(prev as FeedbackData, "").next)}
+              onClick={() => onUpdateData((prev) => addChecklistField4Item(prev as FeedbackData, "").next)}
             >
               <Plus className="size-3.5" />
               Add new
@@ -483,19 +484,19 @@ export function CardRenderer(props: {
                   className="w-5 h-5 rounded border-2 border-gray-300 transition-colors checked:bg-accent checked:border-accent focus:ring-2 focus:ring-accent/50"
                   type="checkbox"
                   checked={c.done}
-                  onChange={(e) => onUpdateData((prev) => projectSetField4ItemDone(prev as FeedbackData, i, e.target.checked))}
+                  onChange={(e) => onUpdateData((prev) => setChecklistField4ItemDone(prev as FeedbackData, (prev as FeedbackData).field4[i].id, e.target.checked))}
                 />
                 <input
                   value={c.text}
                   placeholder="Action item..."
-                  onChange={(e) => onUpdateData((prev) => projectSetField4ItemText(prev as FeedbackData, i, e.target.value))}
+                  onChange={(e) => onUpdateData((prev) => setChecklistField4ItemText(prev as FeedbackData, (prev as FeedbackData).field4[i].id, e.target.value))}
                   className="flex-1 rounded-md border px-2 py-1 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
                 />
                 <button
                   type="button"
                   aria-label="Delete action item"
                   className="text-gray-400 hover:text-accent"
-                  onClick={() => onUpdateData((prev) => projectRemoveField4Item(prev as FeedbackData, i))}
+                  onClick={() => onUpdateData((prev) => removeChecklistField4Item(prev as FeedbackData, (prev as FeedbackData).field4[i].id))}
                 >
                   <X className="h-5 w-5 md:h-6 md:w-6" />
                 </button>
@@ -550,7 +551,7 @@ export function CardRenderer(props: {
             <button
               type="button"
               className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
-              onClick={() => onUpdateData((prev) => chartAddField1Metric(prev as MilestoneData, "", "").next)}
+              onClick={() => onUpdateData((prev) => addMetricsField4Item(prev as MilestoneData, "", "").next)}
             >
               <Plus className="size-3.5" />
               Add new
@@ -562,7 +563,7 @@ export function CardRenderer(props: {
                 Nothing here yet. Add a dependency or progress metric to get started.
               </div>
             )}
-            {d.field4.map((m, i) => {
+            {(d.field4 ?? []).map((m, i) => {
               const number = String(m.id ?? String(i + 1)).padStart(3, "0");
               return (
               <div key={m.id ?? `metric-${i}`} className="flex items-center gap-3">
@@ -570,7 +571,7 @@ export function CardRenderer(props: {
                 <input
                   value={m.label}
                   placeholder="Dependency/progress label"
-                  onChange={(e) => onUpdateData((prev) => chartSetField1Label(prev as MilestoneData, i, e.target.value))}
+                  onChange={(e) => onUpdateData((prev) => setMetricsField4Label(prev as MilestoneData, i, e.target.value))}
                   className="w-25 rounded-md border px-2 py-1 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
                 />
                 <div className="flex items-center gap-3 flex-1">
@@ -588,14 +589,14 @@ export function CardRenderer(props: {
                   min={0}
                   max={100}
                   value={m.value}
-                  onChange={(e) => onUpdateData((prev) => chartSetField1Value(prev as MilestoneData, i, e.target.value === "" ? "" : Number(e.target.value)))}
+                  onChange={(e) => onUpdateData((prev) => setMetricsField4Value(prev as MilestoneData, i, e.target.value === "" ? "" : Number(e.target.value)))}
                   placeholder="0"
                 />
                 <button
                   type="button"
                   aria-label="Delete dependency"
                   className="text-gray-400 hover:text-accent"
-                  onClick={() => onUpdateData((prev) => chartRemoveField1Metric(prev as MilestoneData, i))}
+                  onClick={() => onUpdateData((prev) => removeMetricsField4Item(prev as MilestoneData, i))}
                 >
                   <X className="h-5 w-5 md:h-6 md:w-6" />
                 </button>

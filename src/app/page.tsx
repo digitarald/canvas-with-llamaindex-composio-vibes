@@ -12,7 +12,7 @@ import ShikiHighlighter from "react-shiki/web";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import { EmptyState } from "@/components/empty-state";
 import { cn, getContentArg } from "@/lib/utils";
-import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType } from "@/lib/canvas/types";
+import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, ObjectiveData, KeyResultData, ScenarioData, InitiativeData, RiskData, CardType } from "@/lib/canvas/types";
 import { initialState, isNonEmptyAgentState } from "@/lib/canvas/state";
 import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric } from "@/lib/canvas/updates";
 import useMediaQuery from "@/hooks/use-media-query";
@@ -38,6 +38,28 @@ export default function CopilotKitPage() {
 
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [showJsonView, setShowJsonView] = useState<boolean>(false);
+
+  // Helper function to normalize dates to YYYY-MM-DD format
+  const normalizeDate = useCallback((input: unknown): string => {
+    if (input == null) return "";
+    if (input instanceof Date && !isNaN(input.getTime())) {
+      const yyyy = input.getUTCFullYear();
+      const mm = String(input.getUTCMonth() + 1).padStart(2, "0");
+      const dd = String(input.getUTCDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+    const asString = String(input);
+    // Already in YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(asString)) return asString;
+    const parsed = new Date(asString);
+    if (!isNaN(parsed.getTime())) {
+      const yyyy = parsed.getUTCFullYear();
+      const mm = String(parsed.getUTCMonth() + 1).padStart(2, "0");
+      const dd = String(parsed.getUTCDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+    return "";
+  }, []);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const { scrollY } = useScroll({ container: scrollAreaRef });
   const headerScrollThreshold = 64;
@@ -153,10 +175,35 @@ export default function CopilotKitPage() {
         "  - field1: string (textarea)",
         "- chart.data:",
         "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''",
+        "- objective.data:",
+        "  - field1: string (description text)",
+        "  - field2: string (priority: 'High' | 'Medium' | 'Low')",
+        "  - field3: string (deadline date 'YYYY-MM-DD')",
+        "  - field4: ChecklistItem[] (key results)",
+        "- key-result.data:",
+        "  - field1: ChartMetric[] (progress metrics)",
+        "  - field2: string (description text)",
+        "  - field3: string (unit type: 'Number' | 'Percentage' | 'Currency' | 'Boolean')",
+        "  - field4: string (current/target like '25 / 100')",
+        "- scenario.data:",
+        "  - field1: string (scenario description)",
+        "  - field2: string (probability: 'High' | 'Medium' | 'Low')",
+        "  - field3: string[] (impact areas)",
+        "  - field3_options: string[] (available impact areas)",
+        "- initiative.data:",
+        "  - field1: string (description text)",
+        "  - field2: string (status: 'Planning' | 'In Progress' | 'Completed' | 'On Hold')",
+        "  - field3: string (timeline estimate)",
+        "  - field4: ChecklistItem[] (tasks and milestones)",
+        "- risk.data:",
+        "  - field1: string (risk description)",
+        "  - field2: string (severity: 'Critical' | 'High' | 'Medium' | 'Low')",
+        "  - field3: string (mitigation strategy)",
+        "  - field4: ChecklistItem[] (monitoring triggers)",
       ].join("\n");
       const toolUsageHints = [
         "TOOL USAGE HINTS:",
-        "- To create cards, call createItem with { type: 'project' | 'entity' | 'note' | 'chart', name?: string } and use returned id.",
+        "- To create cards, call createItem with { type: 'project' | 'entity' | 'note' | 'chart' | 'objective' | 'key-result' | 'scenario' | 'initiative' | 'risk', name?: string } and use returned id.",
         "- Prefer calling specific actions: setProjectField1, setProjectField2, setProjectField3, addProjectChecklistItem, setProjectChecklistItem, removeProjectChecklistItem.",
         "- field2 values: 'Option A' | 'Option B' | 'Option C' | '' (empty clears).",
         "- field3 accepts natural dates (e.g., 'tomorrow', '2025-01-30'); it will be normalized to YYYY-MM-DD.",
@@ -238,6 +285,11 @@ export default function CopilotKitPage() {
         { id: "entity", label: "Entity" },
         { id: "note", label: "Note" },
         { id: "chart", label: "Chart" },
+        { id: "objective", label: "Objective" },
+        { id: "key-result", label: "Key Result" },
+        { id: "scenario", label: "Scenario" },
+        { id: "initiative", label: "Initiative" },
+        { id: "risk", label: "Risk" },
       ];
       let selected: CardType | "" = "";
       return (
@@ -342,8 +394,47 @@ export default function CopilotKitPage() {
         return { field1: "" } as NoteData;
       case "chart":
         return { field1: [], field1_id: 0 } as ChartData;
+      case "objective":
+        return {
+          field1: "",
+          field2: "",
+          field3: "",
+          field4: [],
+          field4_id: 0,
+        } as ObjectiveData;
+      case "key-result":
+        return {
+          field1: [],
+          field1_id: 0,
+          field2: "",
+          field3: "",
+          field4: "",
+        } as KeyResultData;
+      case "scenario":
+        return {
+          field1: "",
+          field2: "",
+          field3: [],
+          field3_options: ["Revenue", "User Growth", "Team", "Product", "Market", "Competition"],
+        } as ScenarioData;
+      case "initiative":
+        return {
+          field1: "",
+          field2: "",
+          field3: "",
+          field4: [],
+          field4_id: 0,
+        } as InitiativeData;
+      case "risk":
+        return {
+          field1: "",
+          field2: "",
+          field3: "",
+          field4: [],
+          field4_id: 0,
+        } as RiskData;
       default:
-        return { content: "" } as NoteData;
+        return { field1: "" } as NoteData;
     }
   }, []);
 
@@ -853,12 +944,284 @@ export default function CopilotKitPage() {
     },
   });
 
+  // Objective Field Actions
+  useCopilotAction({
+    name: "setObjectiveField1",
+    description: "Update objective field1 (description text).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "New description value." },
+      { name: "itemId", type: "string", required: true, description: "Target objective item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field1?: string };
+        if (typeof anyPrev.field1 === "string") {
+          return { ...anyPrev, field1: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setObjectiveField2",
+    description: "Update objective field2 (priority: High | Medium | Low).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Priority: High, Medium, or Low." },
+      { name: "itemId", type: "string", required: true, description: "Target objective item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field2?: string };
+        if (typeof anyPrev.field2 === "string") {
+          return { ...anyPrev, field2: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setObjectiveField3",
+    description: "Update objective field3 (deadline date, YYYY-MM-DD).",
+    available: "remote",
+    parameters: [
+      { name: "date", type: "string", required: true, description: "Target date in YYYY-MM-DD format." },
+      { name: "itemId", type: "string", required: true, description: "Target objective item id." },
+    ],
+    handler: ({ date, itemId }: { date: string; itemId: string }) => {
+      const normalizedDate = normalizeDate(date);
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field3?: string };
+        if (typeof anyPrev.field3 === "string") {
+          return { ...anyPrev, field3: normalizedDate } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  // Key Result Field Actions
+  useCopilotAction({
+    name: "setKeyResultField2",
+    description: "Update key result field2 (description text).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "New description value." },
+      { name: "itemId", type: "string", required: true, description: "Target key result item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field2?: string };
+        if (typeof anyPrev.field2 === "string") {
+          return { ...anyPrev, field2: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setKeyResultField3",
+    description: "Update key result field3 (unit type: Number | Percentage | Currency | Boolean).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Unit type: Number, Percentage, Currency, or Boolean." },
+      { name: "itemId", type: "string", required: true, description: "Target key result item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field3?: string };
+        if (typeof anyPrev.field3 === "string") {
+          return { ...anyPrev, field3: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setKeyResultField4",
+    description: "Update key result field4 (current/target values like '25 / 100').",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Current/target format like '25 / 100'." },
+      { name: "itemId", type: "string", required: true, description: "Target key result item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field4?: string };
+        if (typeof anyPrev.field4 === "string") {
+          return { ...anyPrev, field4: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  // Scenario Field Actions
+  useCopilotAction({
+    name: "setScenarioField1",
+    description: "Update scenario field1 (scenario description).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Scenario description." },
+      { name: "itemId", type: "string", required: true, description: "Target scenario item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field1?: string };
+        if (typeof anyPrev.field1 === "string") {
+          return { ...anyPrev, field1: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setScenarioField2",
+    description: "Update scenario field2 (probability: High | Medium | Low).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Probability: High, Medium, or Low." },
+      { name: "itemId", type: "string", required: true, description: "Target scenario item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field2?: string };
+        if (typeof anyPrev.field2 === "string") {
+          return { ...anyPrev, field2: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  // Initiative Field Actions
+  useCopilotAction({
+    name: "setInitiativeField1",
+    description: "Update initiative field1 (description text).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Initiative description." },
+      { name: "itemId", type: "string", required: true, description: "Target initiative item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field1?: string };
+        if (typeof anyPrev.field1 === "string") {
+          return { ...anyPrev, field1: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setInitiativeField2",
+    description: "Update initiative field2 (status: Planning | In Progress | Completed | On Hold).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Status: Planning, In Progress, Completed, or On Hold." },
+      { name: "itemId", type: "string", required: true, description: "Target initiative item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field2?: string };
+        if (typeof anyPrev.field2 === "string") {
+          return { ...anyPrev, field2: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setInitiativeField3",
+    description: "Update initiative field3 (timeline estimate).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Timeline like '2-4 weeks' or 'Q1 2024'." },
+      { name: "itemId", type: "string", required: true, description: "Target initiative item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field3?: string };
+        if (typeof anyPrev.field3 === "string") {
+          return { ...anyPrev, field3: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  // Risk Field Actions
+  useCopilotAction({
+    name: "setRiskField1",
+    description: "Update risk field1 (risk description).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Risk description." },
+      { name: "itemId", type: "string", required: true, description: "Target risk item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field1?: string };
+        if (typeof anyPrev.field1 === "string") {
+          return { ...anyPrev, field1: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setRiskField2",
+    description: "Update risk field2 (severity: Critical | High | Medium | Low).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Severity: Critical, High, Medium, or Low." },
+      { name: "itemId", type: "string", required: true, description: "Target risk item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field2?: string };
+        if (typeof anyPrev.field2 === "string") {
+          return { ...anyPrev, field2: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setRiskField3",
+    description: "Update risk field3 (mitigation strategy).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Mitigation strategy description." },
+      { name: "itemId", type: "string", required: true, description: "Target risk item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field3?: string };
+        if (typeof anyPrev.field3 === "string") {
+          return { ...anyPrev, field3: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
   useCopilotAction({
     name: "createItem",
     description: "Create a new item.",
     available: "remote",
     parameters: [
-      { name: "type", type: "string", required: true, description: "One of: project, entity, note, chart." },
+      { name: "type", type: "string", required: true, description: "One of: project, entity, note, chart, objective, key-result, scenario, initiative, risk." },
       { name: "name", type: "string", required: false, description: "Optional item name." },
     ],
     handler: ({ type, name }: { type: string; name?: string }) => {
@@ -1108,13 +1471,16 @@ export default function CopilotKitPage() {
             if (syncResponse.ok) {
               console.log("Successfully synced existing items to new sheet");
               // Set the newly created sheet as the sync target and update title/description
-              setState((prev) => ({ 
-                ...prev,
-                globalTitle: result.title || title.trim(),
-                globalDescription: `Connected to Google Sheet: ${result.title || title.trim()}`,
-                syncSheetId: sheetId,
-                syncSheetName: "Sheet1" 
-              }));
+              setState((prev) => {
+                const base = prev ?? initialState;
+                return {
+                  ...base,
+                  globalTitle: result.title || title.trim(),
+                  globalDescription: `Connected to Google Sheet: ${result.title || title.trim()}`,
+                  syncSheetId: sheetId,
+                  syncSheetName: "Sheet1" 
+                } as AgentState;
+              });
             } else {
               console.warn("Failed to sync existing items to new sheet");
             }

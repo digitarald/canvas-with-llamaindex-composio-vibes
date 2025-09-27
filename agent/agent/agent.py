@@ -206,6 +206,100 @@ def syncCanvasToSheets() -> str:
     """Manually sync current canvas state to Google Sheets."""
     return "syncCanvasToSheets()"
 
+# Learning Objective actions
+def setLearningObjectiveField1(value: Annotated[str, "New value for learning-objective.data.field1."], itemId: Annotated[str, "Learning objective id."]) -> str:
+    return f"setLearningObjectiveField1({value}, {itemId})"
+
+def setLearningObjectiveField2(value: Annotated[str, "New value for learning-objective.data.field2."], itemId: Annotated[str, "Learning objective id."]) -> str:
+    return f"setLearningObjectiveField2({value}, {itemId})"
+
+def setLearningObjectiveField3(date: Annotated[str, "Date YYYY-MM-DD for learning-objective.data.field3."], itemId: Annotated[str, "Learning objective id."]) -> str:
+    return f"setLearningObjectiveField3({date}, {itemId})"
+
+def addLearningObjectiveField4Item(
+    itemId: Annotated[str, "Learning objective id."],
+    title: Annotated[Optional[str], "Resource title."] = None,
+    url: Annotated[Optional[str], "Resource URL."] = None,
+) -> str:
+    return f"addLearningObjectiveField4Item({itemId}, {title}, {url})"
+
+def setLearningObjectiveField4Item(
+    itemId: Annotated[str, "Learning objective id."],
+    index: Annotated[int, "Resource index (0-based)."],
+    title: Annotated[str, "New resource title."],
+    url: Annotated[str, "New resource URL."],
+) -> str:
+    return f"setLearningObjectiveField4Item({itemId}, {index}, {title}, {url})"
+
+def removeLearningObjectiveField4Item(
+    itemId: Annotated[str, "Learning objective id."],
+    index: Annotated[int, "Resource index (0-based)."],
+) -> str:
+    return f"removeLearningObjectiveField4Item({itemId}, {index})"
+
+def addLearningObjectiveField5Item(prerequisite: Annotated[str, "Prerequisite to add."], itemId: Annotated[str, "Learning objective id."]) -> str:
+    return f"addLearningObjectiveField5Item({prerequisite}, {itemId})"
+
+def removeLearningObjectiveField5Item(prerequisite: Annotated[str, "Prerequisite to remove."], itemId: Annotated[str, "Learning objective id."]) -> str:
+    return f"removeLearningObjectiveField5Item({prerequisite}, {itemId})"
+
+def setLearningObjectiveField6(value: Annotated[float, "Mastery score 0..100."], itemId: Annotated[str, "Learning objective id."]) -> str:
+    return f"setLearningObjectiveField6({value}, {itemId})"
+
+def addLearningObjectiveField7Item(recommendation: Annotated[str, "Recommendation to add."], itemId: Annotated[str, "Learning objective id."]) -> str:
+    return f"addLearningObjectiveField7Item({recommendation}, {itemId})"
+
+def removeLearningObjectiveField7Item(recommendation: Annotated[str, "Recommendation to remove."], itemId: Annotated[str, "Learning objective id."]) -> str:
+    return f"removeLearningObjectiveField7Item({recommendation}, {itemId})"
+
+# Learner Profile actions
+def setLearnerProfileField1(value: Annotated[str, "New value for learner-profile.data.field1."], itemId: Annotated[str, "Learner profile id."]) -> str:
+    return f"setLearnerProfileField1({value}, {itemId})"
+
+def setLearnerProfileField2(value: Annotated[str, "New value for learner-profile.data.field2."], itemId: Annotated[str, "Learner profile id."]) -> str:
+    return f"setLearnerProfileField2({value}, {itemId})"
+
+def addLearnerProfileField3Metric(
+    itemId: Annotated[str, "Learner profile id."],
+    label: Annotated[Optional[str], "Skill label."] = None,
+    value: Annotated[Optional[float], "Skill value 0..100."] = None,
+) -> str:
+    return f"addLearnerProfileField3Metric({itemId}, {label}, {value})"
+
+def setLearnerProfileField3Label(itemId: Annotated[str, "Learner profile id."], index: Annotated[int, "Metric index (0-based)."], label: Annotated[str, "New skill label."]) -> str:
+    return f"setLearnerProfileField3Label({itemId}, {index}, {label})"
+
+def setLearnerProfileField3Value(itemId: Annotated[str, "Learner profile id."], index: Annotated[int, "Metric index (0-based)."], value: Annotated[float, "Value 0..100."]) -> str:
+    return f"setLearnerProfileField3Value({itemId}, {index}, {value})"
+
+def removeLearnerProfileField3Metric(itemId: Annotated[str, "Learner profile id."], index: Annotated[int, "Metric index (0-based)."]) -> str:
+    return f"removeLearnerProfileField3Metric({itemId}, {index})"
+
+def setLearnerProfileField4(value: Annotated[str, "New value for learner-profile.data.field4."], itemId: Annotated[str, "Learner profile id."]) -> str:
+    return f"setLearnerProfileField4({value}, {itemId})"
+
+def setLearnerProfileField5(value: Annotated[str, "New value for learner-profile.data.field5."], itemId: Annotated[str, "Learner profile id."]) -> str:
+    return f"setLearnerProfileField5({value}, {itemId})"
+
+def addLearnerProfileField6Item(adjustment: Annotated[str, "Learning path adjustment to add."], itemId: Annotated[str, "Learner profile id."]) -> str:
+    return f"addLearnerProfileField6Item({adjustment}, {itemId})"
+
+def removeLearnerProfileField6Item(adjustment: Annotated[str, "Learning path adjustment to remove."], itemId: Annotated[str, "Learner profile id."]) -> str:
+    return f"removeLearnerProfileField6Item({adjustment}, {itemId})"
+
+# Enhanced Project actions (for the new fields)
+def setProjectField5(value: Annotated[float, "Engagement score 0..100."], itemId: Annotated[str, "Project id."]) -> str:
+    return f"setProjectField5({value}, {itemId})"
+
+def setProjectField6(value: Annotated[str, "Difficulty level."], itemId: Annotated[str, "Project id."]) -> str:
+    return f"setProjectField6({value}, {itemId})"
+
+def addProjectField7Item(collaboration: Annotated[str, "Collaboration opportunity to add."], itemId: Annotated[str, "Project id."]) -> str:
+    return f"addProjectField7Item({collaboration}, {itemId})"
+
+def removeProjectField7Item(collaboration: Annotated[str, "Collaboration opportunity to remove."], itemId: Annotated[str, "Project id."]) -> str:
+    return f"removeProjectField7Item({collaboration}, {itemId})"
+
 
 FIELD_SCHEMA = (
     "FIELD SCHEMA (authoritative):\n"
@@ -214,6 +308,9 @@ FIELD_SCHEMA = (
     "  - field2: string (select: 'Option A' | 'Option B' | 'Option C')\n"
     "  - field3: string (date 'YYYY-MM-DD')\n"
     "  - field4: ChecklistItem[] where ChecklistItem={id: string, text: string, done: boolean, proposed: boolean}\n"
+    "  - field5: number (engagement score 0-100)\n"
+    "  - field6: string (difficulty level: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert')\n"
+    "  - field7: string[] (peer collaboration opportunities)\n"
     "- entity.data:\n"
     "  - field1: string\n"
     "  - field2: string (select: 'Option A' | 'Option B' | 'Option C')\n"
@@ -223,6 +320,21 @@ FIELD_SCHEMA = (
     "  - field1: string (textarea; represents description)\n"
     "- chart.data:\n"
     "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''\n"
+    "- learning-objective.data:\n"
+    "  - field1: string (learning objective title/description)\n"
+    "  - field2: string (mastery level: 'Novice' | 'Developing' | 'Proficient' | 'Advanced' | 'Expert')\n"
+    "  - field3: string (target completion date 'YYYY-MM-DD')\n"
+    "  - field4: LinkItem[] where LinkItem={title: string, url: string} (learning resources)\n"
+    "  - field5: string[] (prerequisites and dependencies)\n"
+    "  - field6: number (mastery score 0-100)\n"
+    "  - field7: string[] (adaptive recommendations)\n"
+    "- learner-profile.data:\n"
+    "  - field1: string (learner name and basic info)\n"
+    "  - field2: string (learning style: 'Visual' | 'Auditory' | 'Kinesthetic' | 'Reading/Writing')\n"
+    "  - field3: Array<{id: string, label: string, value: number | ''}> (current skill levels across subjects)\n"
+    "  - field4: string (learning goals and preferences)\n"
+    "  - field5: string (performance analytics and progress trends)\n"
+    "  - field6: string[] (recommended learning path adjustments)\n"
 )
 
 SYSTEM_PROMPT = (
@@ -313,6 +425,34 @@ agentic_chat_router = get_ag_ui_workflow_router(
         removeChartField1,
         openSheetSelectionModal,
         setSyncSheetId,
+        # Learning Objective tools
+        setLearningObjectiveField1,
+        setLearningObjectiveField2,
+        setLearningObjectiveField3,
+        addLearningObjectiveField4Item,
+        setLearningObjectiveField4Item,
+        removeLearningObjectiveField4Item,
+        addLearningObjectiveField5Item,
+        removeLearningObjectiveField5Item,
+        setLearningObjectiveField6,
+        addLearningObjectiveField7Item,
+        removeLearningObjectiveField7Item,
+        # Learner Profile tools
+        setLearnerProfileField1,
+        setLearnerProfileField2,
+        addLearnerProfileField3Metric,
+        setLearnerProfileField3Label,
+        setLearnerProfileField3Value,
+        removeLearnerProfileField3Metric,
+        setLearnerProfileField4,
+        setLearnerProfileField5,
+        addLearnerProfileField6Item,
+        removeLearnerProfileField6Item,
+        # Enhanced Project tools
+        setProjectField5,
+        setProjectField6,
+        addProjectField7Item,
+        removeProjectField7Item,
     ],
     backend_tools=_backend_tools,
     system_prompt=SYSTEM_PROMPT,

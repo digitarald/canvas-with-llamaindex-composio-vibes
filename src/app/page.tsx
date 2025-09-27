@@ -18,6 +18,7 @@ import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDon
 import useMediaQuery from "@/hooks/use-media-query";
 import ItemHeader from "@/components/canvas/ItemHeader";
 import NewItemMenu from "@/components/canvas/NewItemMenu";
+import ConnectionLines from "@/components/canvas/ConnectionLines";
 
 export default function CopilotKitPage() {
   const { state, setState } = useCoAgent<AgentState>({
@@ -1464,9 +1465,10 @@ export default function CopilotKitPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="grid gap-6 lg:grid-cols-2 pb-20">
+                    <div className="relative grid gap-6 lg:grid-cols-2 pb-20">
+                      <ConnectionLines items={viewState.items ?? []} />
                       {(viewState.items ?? []).map((item) => (
-                        <article key={item.id} className="relative rounded-2xl border p-5 shadow-sm transition-colors ease-out bg-card hover:border-accent/40 focus-within:border-accent/60">
+                        <article key={item.id} data-item-id={item.id} className="relative rounded-2xl border p-5 shadow-sm transition-colors ease-out bg-card hover:border-accent/40 focus-within:border-accent/60 z-10">
                           <button
                             type="button"
                             aria-label="Delete card"

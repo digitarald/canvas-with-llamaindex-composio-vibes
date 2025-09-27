@@ -13,7 +13,7 @@ import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/rea
 import { EmptyState } from "@/components/empty-state";
 import { cn, getContentArg } from "@/lib/utils";
 import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType } from "@/lib/canvas/types";
-import { initialState, isNonEmptyAgentState } from "@/lib/canvas/state";
+import { initialState, isNonEmptyAgentState, defaultDataFor } from "@/lib/canvas/state";
 import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric } from "@/lib/canvas/updates";
 import useMediaQuery from "@/hooks/use-media-query";
 import ItemHeader from "@/components/canvas/ItemHeader";
@@ -153,10 +153,36 @@ export default function CopilotKitPage() {
         "  - field1: string (textarea)",
         "- chart.data:",
         "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''",
+        "- table.data:",
+        "  - field1: string (table name)",
+        "  - field2: ColumnDefinition[] (columns with name, dataType, nullable, primaryKey, unique, defaultValue, comment)",
+        "  - field3: IndexDefinition[] (indexes with name, columns[], unique, type)",
+        "  - field4: string (table description)",
+        "- relationship.data:",
+        "  - field1: string (relationship name)",
+        "  - field2: string (source table id)",
+        "  - field3: string (target table id)",
+        "  - field4: string[] (source column names)",
+        "  - field5: string[] (target column names)",
+        "  - field6: string (relationship type: 'one-to-one' | 'one-to-many' | 'many-to-many')",
+        "  - field7: string (on delete action: 'CASCADE' | 'SET NULL' | 'RESTRICT' | 'NO ACTION')",
+        "  - field8: string (on update action: 'CASCADE' | 'SET NULL' | 'RESTRICT' | 'NO ACTION')",
+        "- migration.data:",
+        "  - field1: string (migration name)",
+        "  - field2: string (version/timestamp)",
+        "  - field3: MigrationStep[] (steps with type, sql, rollback, description)",
+        "  - field4: string (status: 'pending' | 'applied' | 'failed' | 'rolled_back')",
+        "  - field5: string (migration description)",
+        "- query.data:",
+        "  - field1: string (query name)",
+        "  - field2: string (SQL query)",
+        "  - field3: string (query description)",
+        "  - field4: string (query type: 'SELECT' | 'INSERT' | 'UPDATE' | 'DELETE' | 'VIEW' | 'PROCEDURE')",
+        "  - field5: string[] (tags)",
       ].join("\n");
       const toolUsageHints = [
         "TOOL USAGE HINTS:",
-        "- To create cards, call createItem with { type: 'project' | 'entity' | 'note' | 'chart', name?: string } and use returned id.",
+        "- To create cards, call createItem with { type: 'project' | 'entity' | 'note' | 'chart' | 'table' | 'relationship' | 'migration' | 'query', name?: string } and use returned id.",
         "- Prefer calling specific actions: setProjectField1, setProjectField2, setProjectField3, addProjectChecklistItem, setProjectChecklistItem, removeProjectChecklistItem.",
         "- field2 values: 'Option A' | 'Option B' | 'Option C' | '' (empty clears).",
         "- field3 accepts natural dates (e.g., 'tomorrow', '2025-01-30'); it will be normalized to YYYY-MM-DD.",
@@ -320,32 +346,7 @@ export default function CopilotKitPage() {
 
   // Remove checklist item local helper removed; use Copilot action instead
 
-  // Helper to generate default data by type
-  const defaultDataFor = useCallback((type: CardType): ItemData => {
-    switch (type) {
-      case "project":
-        return {
-          field1: "",
-          field2: "",
-          field3: "",
-          field4: [],
-          field4_id: 0,
-        } as ProjectData;
-      case "entity":
-        return {
-          field1: "",
-          field2: "",
-          field3: [],
-          field3_options: ["Tag 1", "Tag 2", "Tag 3"],
-        } as EntityData;
-      case "note":
-        return { field1: "" } as NoteData;
-      case "chart":
-        return { field1: [], field1_id: 0 } as ChartData;
-      default:
-        return { content: "" } as NoteData;
-    }
-  }, []);
+  // Use the centralized defaultDataFor function from state.ts
 
   const addItem = useCallback((type: CardType, name?: string) => {
     const t: CardType = type;

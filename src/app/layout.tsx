@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
 
-import { Manrope } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { CopilotKit } from "@copilotkit/react-core";
 import "./globals.css";
 import "@copilotkit/react-ui/styles.css";
-
-const manrope = Manrope({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-manrope",
-});
 
 export const metadata: Metadata = {
   title: "AG-UI Canvas | CopilotKit with LlamaIndex",
@@ -23,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${manrope.variable} ${GeistMono.variable}`}>
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body className="subpixel-antialiased">
         <CopilotKit
           runtimeUrl="/api/copilotkit"

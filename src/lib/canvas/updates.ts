@@ -1,4 +1,4 @@
-import { ChartData, ProjectData, LearningObjectiveData, LearnerProfileData, LinkItem } from "@/lib/canvas/types";
+import { ChartData, ProjectData, LearningObjectiveData, LearnerProfileData } from "@/lib/canvas/types";
 
 export function projectAddField4Item(data: ProjectData, text?: string): { next: ProjectData; createdId: string } {
   const existing = data.field4 ?? [];

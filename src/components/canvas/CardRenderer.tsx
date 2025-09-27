@@ -366,8 +366,8 @@ export function CardRenderer(props: {
               type="number"
               min={0}
               max={100}
-              value={d.field6}
-              onChange={(e) => set({ field6: Number(e.target.value) })}
+              value={d.field6 || ""}
+              onChange={(e) => set({ field6: e.target.value ? Number(e.target.value) : 0 })}
               className="w-16 rounded-md border px-2 py-1 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:bg-accent/10 focus:text-accent"
               placeholder="0"
             />
@@ -459,7 +459,7 @@ export function CardRenderer(props: {
                     value={skill.label}
                     placeholder="Skill name"
                     onChange={(e) => onUpdateData((prev) => learnerProfileSetField3Label(prev as LearnerProfileData, i, e.target.value))}
-                    className="w-25 rounded-md border px-2 py-1 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+                    className="w-32 rounded-md border px-2 py-1 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
                   />
                   <div className="flex items-center gap-3 flex-1">
                     <Progress value={skill.value || 0} />
@@ -475,7 +475,7 @@ export function CardRenderer(props: {
                     type="number"
                     min={0}
                     max={100}
-                    value={skill.value}
+                    value={skill.value === "" ? "" : skill.value}
                     onChange={(e) => onUpdateData((prev) => learnerProfileSetField3Value(prev as LearnerProfileData, i, e.target.value === "" ? "" : Number(e.target.value)))}
                     placeholder="0"
                   />

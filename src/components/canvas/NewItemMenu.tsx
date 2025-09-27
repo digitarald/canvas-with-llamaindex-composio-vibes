@@ -21,6 +21,11 @@ export function NewItemMenu({ onSelect, align = "end", className }: { onSelect: 
         <DropdownMenuItem onClick={() => onSelect("entity")}>Entity</DropdownMenuItem>
         <DropdownMenuItem onClick={() => onSelect("note")}>Note</DropdownMenuItem>
         <DropdownMenuItem onClick={() => onSelect("chart")}>Chart</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onSelect("kpi")}>📊 KPI Dashboard</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onSelect("process")}>⚙️ Process</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onSelect("capacity")}>👥 Team Capacity</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onSelect("integration")}>🔗 Integration</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onSelect("alert")}>🚨 Alert</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

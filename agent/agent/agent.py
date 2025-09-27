@@ -71,7 +71,7 @@ def list_sheet_names(sheet_id: Annotated[str, "Google Sheets ID to list availabl
 # --- Frontend tool stubs (names/signatures only; execution happens in the UI) ---
 
 def createItem(
-    type: Annotated[str, "One of: project, entity, note, chart."],
+    type: Annotated[str, "One of: project, entity, note, chart, kpi, process, capacity, integration, alert."],
     name: Annotated[Optional[str], "Optional item name."] = None,
 ) -> str:
     """Create a new canvas item and return its id."""
@@ -206,6 +206,121 @@ def syncCanvasToSheets() -> str:
     """Manually sync current canvas state to Google Sheets."""
     return "syncCanvasToSheets()"
 
+# KPI Dashboard actions
+def setKPIField2(value: Annotated[str, "Time period for KPI dashboard."], itemId: Annotated[str, "KPI dashboard id."]) -> str:
+    return f"setKPIField2({value}, {itemId})"
+
+def setKPIField3(value: Annotated[str, "Category for KPI dashboard."], itemId: Annotated[str, "KPI dashboard id."]) -> str:
+    return f"setKPIField3({value}, {itemId})"
+
+def addKPIField1Metric(
+    itemId: Annotated[str, "KPI dashboard id."],
+    name: Annotated[Optional[str], "KPI metric name."] = None,
+    value: Annotated[Optional[float], "KPI metric value."] = None,
+    unit: Annotated[Optional[str], "KPI metric unit."] = None,
+    source: Annotated[Optional[str], "Data source for KPI."] = None,
+) -> str:
+    return f"addKPIField1Metric({itemId}, {name}, {value}, {unit}, {source})"
+
+def setKPIField1MetricValue(itemId: Annotated[str, "KPI dashboard id."], index: Annotated[int, "Metric index."], value: Annotated[float, "New metric value."]) -> str:
+    return f"setKPIField1MetricValue({itemId}, {index}, {value})"
+
+def setKPIField1MetricTrend(itemId: Annotated[str, "KPI dashboard id."], index: Annotated[int, "Metric index."], trend: Annotated[str, "Trend direction: up, down, stable, or empty."]) -> str:
+    return f"setKPIField1MetricTrend({itemId}, {index}, {trend})"
+
+def removeKPIField1Metric(itemId: Annotated[str, "KPI dashboard id."], index: Annotated[int, "Metric index."]) -> str:
+    return f"removeKPIField1Metric({itemId}, {index})"
+
+# Process actions
+def setProcessField1(value: Annotated[str, "Process name/title."], itemId: Annotated[str, "Process id."]) -> str:
+    return f"setProcessField1({value}, {itemId})"
+
+def setProcessField3(value: Annotated[str, "Process type."], itemId: Annotated[str, "Process id."]) -> str:
+    return f"setProcessField3({value}, {itemId})"
+
+def setProcessField4(value: Annotated[str, "Automation level."], itemId: Annotated[str, "Process id."]) -> str:
+    return f"setProcessField4({value}, {itemId})"
+
+def addProcessField2Step(
+    itemId: Annotated[str, "Process id."],
+    name: Annotated[Optional[str], "Step name."] = None,
+) -> str:
+    return f"addProcessField2Step({itemId}, {name})"
+
+def setProcessField2StepStatus(
+    itemId: Annotated[str, "Process id."],
+    stepId: Annotated[str, "Step id."],
+    status: Annotated[str, "Step status: pending, in_progress, completed, blocked."],
+) -> str:
+    return f"setProcessField2StepStatus({itemId}, {stepId}, {status})"
+
+def removeProcessField2Step(
+    itemId: Annotated[str, "Process id."],
+    stepId: Annotated[str, "Step id."],
+) -> str:
+    return f"removeProcessField2Step({itemId}, {stepId})"
+
+# Capacity actions
+def setCapacityField2(value: Annotated[str, "Team/department name."], itemId: Annotated[str, "Capacity id."]) -> str:
+    return f"setCapacityField2({value}, {itemId})"
+
+def setCapacityField3(value: Annotated[str, "Planning period."], itemId: Annotated[str, "Capacity id."]) -> str:
+    return f"setCapacityField3({value}, {itemId})"
+
+def setCapacityField4(value: Annotated[int, "Overall team utilization percentage."], itemId: Annotated[str, "Capacity id."]) -> str:
+    return f"setCapacityField4({value}, {itemId})"
+
+def addCapacityField1Member(
+    itemId: Annotated[str, "Capacity id."],
+    name: Annotated[Optional[str], "Member name."] = None,
+    role: Annotated[Optional[str], "Member role."] = None,
+) -> str:
+    return f"addCapacityField1Member({itemId}, {name}, {role})"
+
+def setCapacityField1MemberWorkload(itemId: Annotated[str, "Capacity id."], index: Annotated[int, "Member index."], workload: Annotated[int, "Workload percentage."]) -> str:
+    return f"setCapacityField1MemberWorkload({itemId}, {index}, {workload})"
+
+def removeCapacityField1Member(itemId: Annotated[str, "Capacity id."], index: Annotated[int, "Member index."]) -> str:
+    return f"removeCapacityField1Member({itemId}, {index})"
+
+# Integration actions
+def setIntegrationField2(value: Annotated[str, "Sync frequency."], itemId: Annotated[str, "Integration id."]) -> str:
+    return f"setIntegrationField2({value}, {itemId})"
+
+def setIntegrationField3(value: Annotated[int, "System health percentage."], itemId: Annotated[str, "Integration id."]) -> str:
+    return f"setIntegrationField3({value}, {itemId})"
+
+def addIntegrationField1Status(
+    itemId: Annotated[str, "Integration id."],
+    name: Annotated[Optional[str], "Integration name."] = None,
+) -> str:
+    return f"addIntegrationField1Status({itemId}, {name})"
+
+def setIntegrationField1Status(itemId: Annotated[str, "Integration id."], index: Annotated[int, "Integration index."], status: Annotated[str, "Status: connected, error, syncing, disconnected."]) -> str:
+    return f"setIntegrationField1Status({itemId}, {index}, {status})"
+
+def removeIntegrationField1Status(itemId: Annotated[str, "Integration id."], index: Annotated[int, "Integration index."]) -> str:
+    return f"removeIntegrationField1Status({itemId}, {index})"
+
+# Alert actions
+def setAlertField2(value: Annotated[str, "Notification channel."], itemId: Annotated[str, "Alert id."]) -> str:
+    return f"setAlertField2({value}, {itemId})"
+
+def setAlertField3(value: Annotated[str, "Alert category."], itemId: Annotated[str, "Alert id."]) -> str:
+    return f"setAlertField3({value}, {itemId})"
+
+def addAlertField1Rule(
+    itemId: Annotated[str, "Alert id."],
+    name: Annotated[Optional[str], "Alert rule name."] = None,
+) -> str:
+    return f"addAlertField1Rule({itemId}, {name})"
+
+def setAlertField1RuleStatus(itemId: Annotated[str, "Alert id."], index: Annotated[int, "Rule index."], status: Annotated[str, "Rule status: active, triggered, resolved, disabled."]) -> str:
+    return f"setAlertField1RuleStatus({itemId}, {index}, {status})"
+
+def removeAlertField1Rule(itemId: Annotated[str, "Alert id."], index: Annotated[int, "Rule index."]) -> str:
+    return f"removeAlertField1Rule({itemId}, {index})"
+
 
 FIELD_SCHEMA = (
     "FIELD SCHEMA (authoritative):\n"
@@ -223,6 +338,28 @@ FIELD_SCHEMA = (
     "  - field1: string (textarea; represents description)\n"
     "- chart.data:\n"
     "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''\n"
+    "- kpi.data:\n"
+    "  - field1: KPIMetric[] where KPIMetric={id: string, name: string, value: number | '', unit: string, trend: 'up' | 'down' | 'stable' | '', target?: number, source: string}\n"
+    "  - field2: string (time period: 'daily' | 'weekly' | 'monthly' | 'quarterly')\n"
+    "  - field3: string (category: 'growth' | 'revenue' | 'engagement' | 'performance')\n"
+    "- process.data:\n"
+    "  - field1: string (process name/title)\n"
+    "  - field2: ProcessStep[] where ProcessStep={id: string, name: string, status: 'pending' | 'in_progress' | 'completed' | 'blocked', assignee?: string, duration?: number, dependencies?: string[]}\n"
+    "  - field3: string (process type: 'general' | 'sales' | 'hiring' | 'product_release' | 'customer_onboarding')\n"
+    "  - field4: string (automation: 'manual' | 'semi_automated' | 'automated')\n"
+    "- capacity.data:\n"
+    "  - field1: TeamMember[] where TeamMember={id: string, name: string, role: string, capacity: number, workload: number, skills: string[]}\n"
+    "  - field2: string (team/department name)\n"
+    "  - field3: string (planning period: 'current_sprint' | 'next_sprint' | 'current_quarter' | 'next_quarter')\n"
+    "  - field4: number (overall team utilization 0-100)\n"
+    "- integration.data:\n"
+    "  - field1: IntegrationStatus[] where IntegrationStatus={id: string, name: string, status: 'connected' | 'error' | 'syncing' | 'disconnected', lastSync?: string, errorCount: number, dataHealth: number}\n"
+    "  - field2: string (sync frequency: 'realtime' | 'hourly' | 'daily' | 'weekly')\n"
+    "  - field3: number (overall system health 0-100)\n"
+    "- alert.data:\n"
+    "  - field1: AlertRule[] where AlertRule={id: string, name: string, condition: string, threshold: number, status: 'active' | 'triggered' | 'resolved' | 'disabled', priority: 'low' | 'medium' | 'high' | 'critical', action: string}\n"
+    "  - field2: string (notification channel: 'slack' | 'email' | 'sms' | 'webhook')\n"
+    "  - field3: string (alert category: 'performance' | 'capacity' | 'revenue' | 'security' | 'usage')\n"
 )
 
 SYSTEM_PROMPT = (
@@ -313,6 +450,39 @@ agentic_chat_router = get_ag_ui_workflow_router(
         removeChartField1,
         openSheetSelectionModal,
         setSyncSheetId,
+        # KPI Dashboard actions
+        setKPIField2,
+        setKPIField3,
+        addKPIField1Metric,
+        setKPIField1MetricValue,
+        setKPIField1MetricTrend,
+        removeKPIField1Metric,
+        # Process actions
+        setProcessField1,
+        setProcessField3,
+        setProcessField4,
+        addProcessField2Step,
+        setProcessField2StepStatus,
+        removeProcessField2Step,
+        # Capacity actions
+        setCapacityField2,
+        setCapacityField3,
+        setCapacityField4,
+        addCapacityField1Member,
+        setCapacityField1MemberWorkload,
+        removeCapacityField1Member,
+        # Integration actions
+        setIntegrationField2,
+        setIntegrationField3,
+        addIntegrationField1Status,
+        setIntegrationField1Status,
+        removeIntegrationField1Status,
+        # Alert actions
+        setAlertField2,
+        setAlertField3,
+        addAlertField1Rule,
+        setAlertField1RuleStatus,
+        removeAlertField1Rule,
     ],
     backend_tools=_backend_tools,
     system_prompt=SYSTEM_PROMPT,

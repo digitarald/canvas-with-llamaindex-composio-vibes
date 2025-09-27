@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     agents: {
       sample_agent: new LlamaIndexAgent({
         url: "http://127.0.0.1:9000/run",
-      })
+      }) as any
     }
   })
 

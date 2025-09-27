@@ -1538,12 +1538,12 @@ export default function CopilotKitPage() {
               console.log("Successfully synced existing items to new sheet");
               // Set the newly created sheet as the sync target and update title/description
               setState((prev) => ({ 
-                ...prev,
+                ...(prev ?? initialState),
                 globalTitle: result.title || title.trim(),
                 globalDescription: `Connected to Google Sheet: ${result.title || title.trim()}`,
                 syncSheetId: sheetId,
                 syncSheetName: "Sheet1" 
-              }));
+              } as AgentState));
             } else {
               console.warn("Failed to sync existing items to new sheet");
             }

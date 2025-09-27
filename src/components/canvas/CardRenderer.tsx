@@ -254,7 +254,7 @@ export function CardRenderer(props: {
               No KPIs yet. Add metrics to track performance.
             </div>
           )}
-          {d.field1.map((kpi, i) => (
+          {(d.field1 || []).map((kpi, i) => (
             <div key={kpi.id} className="border rounded-lg p-3 bg-gray-50/50">
               <div className="flex items-center justify-between mb-2">
                 <input
@@ -263,7 +263,7 @@ export function CardRenderer(props: {
                   onChange={(e) => onUpdateData((prev) => {
                     const next = [...(prev as KPIData).field1];
                     next[i] = { ...next[i], name: e.target.value };
-                    return { ...prev, field1: next };
+                    return { ...prev, field1: next } as KPIData;
                   })}
                   className="font-medium text-sm bg-transparent border-none outline-none flex-1"
                 />
@@ -290,7 +290,7 @@ export function CardRenderer(props: {
                     onChange={(e) => onUpdateData((prev) => {
                       const next = [...(prev as KPIData).field1];  
                       next[i] = { ...next[i], unit: e.target.value };
-                      return { ...prev, field1: next };
+                      return { ...prev, field1: next } as KPIData;
                     })}
                     className="w-16 text-xs border rounded px-2 py-1"
                   />
@@ -315,7 +315,7 @@ export function CardRenderer(props: {
                 onChange={(e) => onUpdateData((prev) => {
                   const next = [...(prev as KPIData).field1];
                   next[i] = { ...next[i], source: e.target.value };
-                  return { ...prev, field1: next };
+                  return { ...prev, field1: next } as KPIData;
                 })}
                 className="w-full text-xs border rounded px-2 py-1"
               />
@@ -398,7 +398,7 @@ export function CardRenderer(props: {
               No steps defined. Add steps to map your process.
             </div>
           )}
-          {d.field2.map((step, i) => (
+          {(d.field2 || []).map((step, i) => (
             <div key={step.id} className="flex items-center gap-3 p-2 border rounded-lg">
               <span className="text-xs font-mono text-muted-foreground/80">{String(i + 1).padStart(2, "0")}</span>
               {getStatusIcon(step.status)}
@@ -408,7 +408,7 @@ export function CardRenderer(props: {
                 onChange={(e) => onUpdateData((prev) => {
                   const next = [...(prev as ProcessData).field2];
                   next[i] = { ...next[i], name: e.target.value };
-                  return { ...prev, field2: next };
+                  return { ...prev, field2: next } as ProcessData;
                 })}
                 className="flex-1 bg-transparent border-none outline-none text-sm"
               />
@@ -501,7 +501,7 @@ export function CardRenderer(props: {
               No team members added. Add members to track capacity.
             </div>
           )}
-          {d.field1.map((member, i) => (
+          {(d.field1 || []).map((member, i) => (
             <div key={member.id} className="border rounded-lg p-3 bg-gray-50/50">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2 flex-1">
@@ -512,7 +512,7 @@ export function CardRenderer(props: {
                     onChange={(e) => onUpdateData((prev) => {
                       const next = [...(prev as CapacityData).field1];
                       next[i] = { ...next[i], name: e.target.value };
-                      return { ...prev, field1: next };
+                      return { ...prev, field1: next } as CapacityData;
                     })}
                     className="font-medium text-sm bg-transparent border-none outline-none flex-1"
                   />
@@ -532,7 +532,7 @@ export function CardRenderer(props: {
                   onChange={(e) => onUpdateData((prev) => {
                     const next = [...(prev as CapacityData).field1];
                     next[i] = { ...next[i], role: e.target.value };
-                    return { ...prev, field1: next };
+                    return { ...prev, field1: next } as CapacityData;
                   })}
                   className="text-sm border rounded px-2 py-1"
                 />
@@ -546,7 +546,7 @@ export function CardRenderer(props: {
                     onChange={(e) => onUpdateData((prev) => {
                       const next = [...(prev as CapacityData).field1];
                       next[i] = { ...next[i], capacity: Number(e.target.value) };
-                      return { ...prev, field1: next };
+                      return { ...prev, field1: next } as CapacityData;
                     })}
                     className="w-16 text-xs border rounded px-2 py-1"
                   />
@@ -629,7 +629,7 @@ export function CardRenderer(props: {
               No integrations configured. Add tools to monitor data pipelines.
             </div>
           )}
-          {d.field1.map((integration, i) => (
+          {(d.field1 || []).map((integration, i) => (
             <div key={integration.id} className="border rounded-lg p-3 bg-gray-50/50">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2 flex-1">
@@ -640,7 +640,7 @@ export function CardRenderer(props: {
                     onChange={(e) => onUpdateData((prev) => {
                       const next = [...(prev as IntegrationData).field1];
                       next[i] = { ...next[i], name: e.target.value };
-                      return { ...prev, field1: next };
+                      return { ...prev, field1: next } as IntegrationData;
                     })}
                     className="font-medium text-sm bg-transparent border-none outline-none flex-1"
                   />
@@ -753,7 +753,7 @@ export function CardRenderer(props: {
               No alert rules configured. Add rules to monitor thresholds.
             </div>
           )}
-          {d.field1.map((rule, i) => (
+          {(d.field1 || []).map((rule, i) => (
             <div key={rule.id} className={`border rounded-lg p-3 bg-gray-50/50 ${getPriorityColor(rule.priority)}`}>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2 flex-1">
@@ -764,7 +764,7 @@ export function CardRenderer(props: {
                     onChange={(e) => onUpdateData((prev) => {
                       const next = [...(prev as AlertData).field1];
                       next[i] = { ...next[i], name: e.target.value };
-                      return { ...prev, field1: next };
+                      return { ...prev, field1: next } as AlertData;
                     })}
                     className="font-medium text-sm bg-transparent border-none outline-none flex-1"
                   />
@@ -783,7 +783,7 @@ export function CardRenderer(props: {
                   onChange={(e) => onUpdateData((prev) => {
                     const next = [...(prev as AlertData).field1];
                     next[i] = { ...next[i], priority: e.target.value as any };
-                    return { ...prev, field1: next };
+                    return { ...prev, field1: next } as AlertData;
                   })}
                   className="text-sm border rounded px-2 py-1"
                 >
@@ -810,7 +810,7 @@ export function CardRenderer(props: {
                   onChange={(e) => onUpdateData((prev) => {
                     const next = [...(prev as AlertData).field1];
                     next[i] = { ...next[i], condition: e.target.value };
-                    return { ...prev, field1: next };
+                    return { ...prev, field1: next } as AlertData;
                   })}
                   className="text-sm border rounded px-2 py-1"
                 />
@@ -821,7 +821,7 @@ export function CardRenderer(props: {
                   onChange={(e) => onUpdateData((prev) => {
                     const next = [...(prev as AlertData).field1];
                     next[i] = { ...next[i], threshold: Number(e.target.value) };
-                    return { ...prev, field1: next };
+                    return { ...prev, field1: next } as AlertData;
                   })}
                   className="text-sm border rounded px-2 py-1"
                 />
@@ -832,7 +832,7 @@ export function CardRenderer(props: {
                 onChange={(e) => onUpdateData((prev) => {
                   const next = [...(prev as AlertData).field1];
                   next[i] = { ...next[i], action: e.target.value };
-                  return { ...prev, field1: next };
+                  return { ...prev, field1: next } as AlertData;
                 })}
                 className="w-full text-sm border rounded px-2 py-1"
               />

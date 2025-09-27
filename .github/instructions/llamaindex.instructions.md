@@ -1,3 +1,6 @@
+---
+description: "LlamaIndex stack documentation and integration patterns"
+---
 # LlamaIndex Stack Documentation
 
 ## What is LlamaIndex?

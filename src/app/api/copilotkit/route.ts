@@ -11,9 +11,11 @@ export async function POST(request: NextRequest) {
  
   const runtime = new CopilotRuntime({
     agents: {
+      // Type assertion needed due to version mismatch between @ag-ui/llamaindex and @copilotkit/runtime
+      // Both packages use different versions of AbstractAgent interface
       sample_agent: new LlamaIndexAgent({
         url: "http://127.0.0.1:9000/run",
-      })
+      }) as any
     }
   })
 

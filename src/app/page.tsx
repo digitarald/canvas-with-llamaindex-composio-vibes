@@ -12,9 +12,17 @@ import ShikiHighlighter from "react-shiki/web";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import { EmptyState } from "@/components/empty-state";
 import { cn, getContentArg } from "@/lib/utils";
-import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType } from "@/lib/canvas/types";
+import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, KPIData, ProcessData, CapacityData, IntegrationData, AlertData, CardType } from "@/lib/canvas/types";
 import { initialState, isNonEmptyAgentState } from "@/lib/canvas/state";
-import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric } from "@/lib/canvas/updates";
+import { 
+  projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, 
+  chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric,
+  kpiAddField1Metric, kpiSetField1MetricValue, kpiSetField1MetricTrend, kpiRemoveField1Metric,
+  processAddField2Step, processSetField2StepStatus, processRemoveField2Step,
+  capacityAddField1Member, capacitySetField1MemberWorkload, capacityRemoveField1Member,
+  integrationAddField1Status, integrationSetField1Status, integrationRemoveField1Status,
+  alertAddField1Rule, alertSetField1RuleStatus, alertRemoveField1Rule
+} from "@/lib/canvas/updates";
 import useMediaQuery from "@/hooks/use-media-query";
 import ItemHeader from "@/components/canvas/ItemHeader";
 import NewItemMenu from "@/components/canvas/NewItemMenu";
@@ -153,10 +161,32 @@ export default function CopilotKitPage() {
         "  - field1: string (textarea)",
         "- chart.data:",
         "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''",
+        "- kpi.data:",
+        "  - field1: KPIMetric[] where KPIMetric={id: string, name: string, value: number | '', unit: string, trend: 'up' | 'down' | 'stable' | '', source: string}",
+        "  - field2: string (time period: 'daily' | 'weekly' | 'monthly' | 'quarterly')",
+        "  - field3: string (category: 'growth' | 'revenue' | 'engagement' | 'performance')",
+        "- process.data:",
+        "  - field1: string (process name/title)",
+        "  - field2: ProcessStep[] where ProcessStep={id: string, name: string, status: 'pending' | 'in_progress' | 'completed' | 'blocked'}",
+        "  - field3: string (process type: 'general' | 'sales' | 'hiring' | 'product_release' | 'customer_onboarding')",
+        "  - field4: string (automation: 'manual' | 'semi_automated' | 'automated')",
+        "- capacity.data:",
+        "  - field1: TeamMember[] where TeamMember={id: string, name: string, role: string, capacity: number, workload: number}",
+        "  - field2: string (team/department name)",
+        "  - field3: string (planning period: 'current_sprint' | 'next_sprint' | 'current_quarter' | 'next_quarter')",
+        "  - field4: number (overall team utilization 0-100)",
+        "- integration.data:",
+        "  - field1: IntegrationStatus[] where IntegrationStatus={id: string, name: string, status: 'connected' | 'error' | 'syncing' | 'disconnected', errorCount: number, dataHealth: number}",
+        "  - field2: string (sync frequency: 'realtime' | 'hourly' | 'daily' | 'weekly')",
+        "  - field3: number (overall system health 0-100)",
+        "- alert.data:",
+        "  - field1: AlertRule[] where AlertRule={id: string, name: string, condition: string, threshold: number, status: 'active' | 'triggered' | 'resolved' | 'disabled', priority: 'low' | 'medium' | 'high' | 'critical', action: string}",
+        "  - field2: string (notification channel: 'slack' | 'email' | 'sms' | 'webhook')",
+        "  - field3: string (alert category: 'performance' | 'capacity' | 'revenue' | 'security' | 'usage')",
       ].join("\n");
       const toolUsageHints = [
         "TOOL USAGE HINTS:",
-        "- To create cards, call createItem with { type: 'project' | 'entity' | 'note' | 'chart', name?: string } and use returned id.",
+        "- To create cards, call createItem with { type: 'project' | 'entity' | 'note' | 'chart' | 'kpi' | 'process' | 'capacity' | 'integration' | 'alert', name?: string } and use returned id.",
         "- Prefer calling specific actions: setProjectField1, setProjectField2, setProjectField3, addProjectChecklistItem, setProjectChecklistItem, removeProjectChecklistItem.",
         "- field2 values: 'Option A' | 'Option B' | 'Option C' | '' (empty clears).",
         "- field3 accepts natural dates (e.g., 'tomorrow', '2025-01-30'); it will be normalized to YYYY-MM-DD.",
@@ -238,6 +268,11 @@ export default function CopilotKitPage() {
         { id: "entity", label: "Entity" },
         { id: "note", label: "Note" },
         { id: "chart", label: "Chart" },
+        { id: "kpi", label: "📊 KPI Dashboard" },
+        { id: "process", label: "⚙️ Process" },
+        { id: "capacity", label: "👥 Team Capacity" },
+        { id: "integration", label: "🔗 Integration" },
+        { id: "alert", label: "🚨 Alert" },
       ];
       let selected: CardType | "" = "";
       return (
@@ -853,12 +888,406 @@ export default function CopilotKitPage() {
     },
   });
 
+  // KPI Dashboard actions
+  useCopilotAction({
+    name: "setKPIField2",
+    description: "Set KPI dashboard time period.",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Time period (daily, weekly, monthly, quarterly)." },
+      { name: "itemId", type: "string", required: true, description: "Target KPI dashboard id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => ({ ...(prev as KPIData), field2: value }));
+    },
+  });
+
+  useCopilotAction({
+    name: "setKPIField3",
+    description: "Set KPI dashboard category.",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Category (growth, revenue, engagement, performance)." },
+      { name: "itemId", type: "string", required: true, description: "Target KPI dashboard id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => ({ ...(prev as KPIData), field3: value }));
+    },
+  });
+
+  useCopilotAction({
+    name: "addKPIField1Metric",
+    description: "Add a new KPI metric.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target KPI dashboard id." },
+      { name: "name", type: "string", required: false, description: "Metric name." },
+      { name: "value", type: "number", required: false, description: "Metric value." },
+      { name: "unit", type: "string", required: false, description: "Metric unit." },
+      { name: "source", type: "string", required: false, description: "Data source." },
+    ],
+    handler: ({ itemId, name, value, unit, source }: { itemId: string; name?: string; value?: number; unit?: string; source?: string }) => {
+      updateItemData(itemId, (prev) => {
+        const result = kpiAddField1Metric(prev as KPIData, name, value, unit, source);
+        return result.next;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setKPIField1MetricValue",
+    description: "Set KPI metric value.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target KPI dashboard id." },
+      { name: "index", type: "number", required: true, description: "Metric index." },
+      { name: "value", type: "number", required: true, description: "New metric value." },
+    ],
+    handler: ({ itemId, index, value }: { itemId: string; index: number; value: number }) => {
+      updateItemData(itemId, (prev) => kpiSetField1MetricValue(prev as KPIData, index, value));
+    },
+  });
+
+  useCopilotAction({
+    name: "setKPIField1MetricTrend",
+    description: "Set KPI metric trend.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target KPI dashboard id." },
+      { name: "index", type: "number", required: true, description: "Metric index." },
+      { name: "trend", type: "string", required: true, description: "Trend direction (up, down, stable, or empty)." },
+    ],
+    handler: ({ itemId, index, trend }: { itemId: string; index: number; trend: string }) => {
+      updateItemData(itemId, (prev) => kpiSetField1MetricTrend(prev as KPIData, index, trend as any));
+    },
+  });
+
+  useCopilotAction({
+    name: "removeKPIField1Metric",
+    description: "Remove a KPI metric.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target KPI dashboard id." },
+      { name: "index", type: "number", required: true, description: "Metric index." },
+    ],
+    handler: ({ itemId, index }: { itemId: string; index: number }) => {
+      updateItemData(itemId, (prev) => kpiRemoveField1Metric(prev as KPIData, index));
+    },
+  });
+
+  // Process actions
+  useCopilotAction({
+    name: "setProcessField1",
+    description: "Set process name/title.",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Process name." },
+      { name: "itemId", type: "string", required: true, description: "Target process id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => ({ ...(prev as ProcessData), field1: value }));
+    },
+  });
+
+  useCopilotAction({
+    name: "setProcessField3",
+    description: "Set process type.",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Process type." },
+      { name: "itemId", type: "string", required: true, description: "Target process id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => ({ ...(prev as ProcessData), field3: value }));
+    },
+  });
+
+  useCopilotAction({
+    name: "setProcessField4",
+    description: "Set process automation level.",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Automation level." },
+      { name: "itemId", type: "string", required: true, description: "Target process id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => ({ ...(prev as ProcessData), field4: value }));
+    },
+  });
+
+  useCopilotAction({
+    name: "addProcessField2Step",
+    description: "Add a new process step.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target process id." },
+      { name: "name", type: "string", required: false, description: "Step name." },
+    ],
+    handler: ({ itemId, name }: { itemId: string; name?: string }) => {
+      updateItemData(itemId, (prev) => {
+        const result = processAddField2Step(prev as ProcessData, name);
+        return result.next;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setProcessField2StepStatus",
+    description: "Set process step status.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target process id." },
+      { name: "stepId", type: "string", required: true, description: "Step id." },
+      { name: "status", type: "string", required: true, description: "Step status." },
+    ],
+    handler: ({ itemId, stepId, status }: { itemId: string; stepId: string; status: string }) => {
+      updateItemData(itemId, (prev) => processSetField2StepStatus(prev as ProcessData, stepId, status as any));
+    },
+  });
+
+  useCopilotAction({
+    name: "removeProcessField2Step",
+    description: "Remove a process step.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target process id." },
+      { name: "stepId", type: "string", required: true, description: "Step id." },
+    ],
+    handler: ({ itemId, stepId }: { itemId: string; stepId: string }) => {
+      updateItemData(itemId, (prev) => processRemoveField2Step(prev as ProcessData, stepId));
+    },
+  });
+
+  // Capacity actions
+  useCopilotAction({
+    name: "setCapacityField2",
+    description: "Set team/department name.",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Team/department name." },
+      { name: "itemId", type: "string", required: true, description: "Target capacity id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => ({ ...(prev as CapacityData), field2: value }));
+    },
+  });
+
+  useCopilotAction({
+    name: "setCapacityField3",
+    description: "Set planning period.",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Planning period." },
+      { name: "itemId", type: "string", required: true, description: "Target capacity id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => ({ ...(prev as CapacityData), field3: value }));
+    },
+  });
+
+  useCopilotAction({
+    name: "setCapacityField4",
+    description: "Set overall team utilization.",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "number", required: true, description: "Team utilization percentage." },
+      { name: "itemId", type: "string", required: true, description: "Target capacity id." },
+    ],
+    handler: ({ value, itemId }: { value: number; itemId: string }) => {
+      updateItemData(itemId, (prev) => ({ ...(prev as CapacityData), field4: value }));
+    },
+  });
+
+  useCopilotAction({
+    name: "addCapacityField1Member",
+    description: "Add a new team member.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target capacity id." },
+      { name: "name", type: "string", required: false, description: "Member name." },
+      { name: "role", type: "string", required: false, description: "Member role." },
+    ],
+    handler: ({ itemId, name, role }: { itemId: string; name?: string; role?: string }) => {
+      updateItemData(itemId, (prev) => {
+        const result = capacityAddField1Member(prev as CapacityData, name, role);
+        return result.next;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setCapacityField1MemberWorkload",
+    description: "Set team member workload.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target capacity id." },
+      { name: "index", type: "number", required: true, description: "Member index." },
+      { name: "workload", type: "number", required: true, description: "Workload percentage." },
+    ],
+    handler: ({ itemId, index, workload }: { itemId: string; index: number; workload: number }) => {
+      updateItemData(itemId, (prev) => capacitySetField1MemberWorkload(prev as CapacityData, index, workload));
+    },
+  });
+
+  useCopilotAction({
+    name: "removeCapacityField1Member",
+    description: "Remove a team member.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target capacity id." },
+      { name: "index", type: "number", required: true, description: "Member index." },
+    ],
+    handler: ({ itemId, index }: { itemId: string; index: number }) => {
+      updateItemData(itemId, (prev) => capacityRemoveField1Member(prev as CapacityData, index));
+    },
+  });
+
+  // Integration actions
+  useCopilotAction({
+    name: "setIntegrationField2",
+    description: "Set sync frequency.",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Sync frequency." },
+      { name: "itemId", type: "string", required: true, description: "Target integration id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => ({ ...(prev as IntegrationData), field2: value }));
+    },
+  });
+
+  useCopilotAction({
+    name: "setIntegrationField3",
+    description: "Set system health.",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "number", required: true, description: "System health percentage." },
+      { name: "itemId", type: "string", required: true, description: "Target integration id." },
+    ],
+    handler: ({ value, itemId }: { value: number; itemId: string }) => {
+      updateItemData(itemId, (prev) => ({ ...(prev as IntegrationData), field3: value }));
+    },
+  });
+
+  useCopilotAction({
+    name: "addIntegrationField1Status",
+    description: "Add a new integration.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target integration id." },
+      { name: "name", type: "string", required: false, description: "Integration name." },
+    ],
+    handler: ({ itemId, name }: { itemId: string; name?: string }) => {
+      updateItemData(itemId, (prev) => {
+        const result = integrationAddField1Status(prev as IntegrationData, name);
+        return result.next;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setIntegrationField1Status",
+    description: "Set integration status.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target integration id." },
+      { name: "index", type: "number", required: true, description: "Integration index." },
+      { name: "status", type: "string", required: true, description: "Integration status." },
+    ],
+    handler: ({ itemId, index, status }: { itemId: string; index: number; status: string }) => {
+      updateItemData(itemId, (prev) => integrationSetField1Status(prev as IntegrationData, index, status as any));
+    },
+  });
+
+  useCopilotAction({
+    name: "removeIntegrationField1Status",
+    description: "Remove an integration.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target integration id." },
+      { name: "index", type: "number", required: true, description: "Integration index." },
+    ],
+    handler: ({ itemId, index }: { itemId: string; index: number }) => {
+      updateItemData(itemId, (prev) => integrationRemoveField1Status(prev as IntegrationData, index));
+    },
+  });
+
+  // Alert actions
+  useCopilotAction({
+    name: "setAlertField2",
+    description: "Set notification channel.",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Notification channel." },
+      { name: "itemId", type: "string", required: true, description: "Target alert id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => ({ ...(prev as AlertData), field2: value }));
+    },
+  });
+
+  useCopilotAction({
+    name: "setAlertField3",
+    description: "Set alert category.",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Alert category." },
+      { name: "itemId", type: "string", required: true, description: "Target alert id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => ({ ...(prev as AlertData), field3: value }));
+    },
+  });
+
+  useCopilotAction({
+    name: "addAlertField1Rule",
+    description: "Add a new alert rule.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target alert id." },
+      { name: "name", type: "string", required: false, description: "Alert rule name." },
+    ],
+    handler: ({ itemId, name }: { itemId: string; name?: string }) => {
+      updateItemData(itemId, (prev) => {
+        const result = alertAddField1Rule(prev as AlertData, name);
+        return result.next;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setAlertField1RuleStatus",
+    description: "Set alert rule status.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target alert id." },
+      { name: "index", type: "number", required: true, description: "Rule index." },
+      { name: "status", type: "string", required: true, description: "Rule status." },
+    ],
+    handler: ({ itemId, index, status }: { itemId: string; index: number; status: string }) => {
+      updateItemData(itemId, (prev) => alertSetField1RuleStatus(prev as AlertData, index, status as any));
+    },
+  });
+
+  useCopilotAction({
+    name: "removeAlertField1Rule",
+    description: "Remove an alert rule.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target alert id." },
+      { name: "index", type: "number", required: true, description: "Rule index." },
+    ],
+    handler: ({ itemId, index }: { itemId: string; index: number }) => {
+      updateItemData(itemId, (prev) => alertRemoveField1Rule(prev as AlertData, index));
+    },
+  });
+
   useCopilotAction({
     name: "createItem",
     description: "Create a new item.",
     available: "remote",
     parameters: [
-      { name: "type", type: "string", required: true, description: "One of: project, entity, note, chart." },
+      { name: "type", type: "string", required: true, description: "One of: project, entity, note, chart, kpi, process, capacity, integration, alert." },
       { name: "name", type: "string", required: false, description: "Optional item name." },
     ],
     handler: ({ type, name }: { type: string; name?: string }) => {
@@ -1109,12 +1538,12 @@ export default function CopilotKitPage() {
               console.log("Successfully synced existing items to new sheet");
               // Set the newly created sheet as the sync target and update title/description
               setState((prev) => ({ 
-                ...prev,
+                ...(prev ?? initialState),
                 globalTitle: result.title || title.trim(),
                 globalDescription: `Connected to Google Sheet: ${result.title || title.trim()}`,
                 syncSheetId: sheetId,
                 syncSheetName: "Sheet1" 
-              }));
+              } as AgentState));
             } else {
               console.warn("Failed to sync existing items to new sheet");
             }

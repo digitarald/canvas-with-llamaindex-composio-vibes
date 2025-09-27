@@ -12,7 +12,7 @@ import ShikiHighlighter from "react-shiki/web";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import { EmptyState } from "@/components/empty-state";
 import { cn, getContentArg } from "@/lib/utils";
-import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType } from "@/lib/canvas/types";
+import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, ServiceData, DatabaseData, MessageQueueData, ApiGatewayData, ExternalServiceData, IssueData, CardType } from "@/lib/canvas/types";
 import { initialState, isNonEmptyAgentState } from "@/lib/canvas/state";
 import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric } from "@/lib/canvas/updates";
 import useMediaQuery from "@/hooks/use-media-query";
@@ -342,6 +342,66 @@ export default function CopilotKitPage() {
         return { field1: "" } as NoteData;
       case "chart":
         return { field1: [], field1_id: 0 } as ChartData;
+      case "service":
+        return {
+          field1: "",
+          field2: "healthy",
+          field3: "web",
+          field4: [],
+          field4_id: 0,
+          field5: "",
+          field6: [],
+        } as ServiceData;
+      case "database":
+        return {
+          field1: "",
+          field2: "postgresql",
+          field3: "connected",
+          field4: [],
+          field4_id: 0,
+          field5: "",
+          field6: [],
+        } as DatabaseData;
+      case "messagequeue":
+        return {
+          field1: "",
+          field2: "rabbitmq",
+          field3: "running",
+          field4: [],
+          field4_id: 0,
+          field5: "0",
+          field6: [],
+        } as MessageQueueData;
+      case "apigateway":
+        return {
+          field1: "",
+          field2: "nginx",
+          field3: "active",
+          field4: [],
+          field4_id: 0,
+          field5: "0",
+          field6: [],
+        } as ApiGatewayData;
+      case "externalservice":
+        return {
+          field1: "",
+          field2: "aws",
+          field3: "connected",
+          field4: [],
+          field4_id: 0,
+          field5: "",
+          field6: [],
+        } as ExternalServiceData;
+      case "issue":
+        return {
+          field1: "",
+          field2: "medium",
+          field3: "open",
+          field4: [],
+          field4_id: 0,
+          field5: "",
+          field6: "",
+        } as IssueData;
       default:
         return { content: "" } as NoteData;
     }

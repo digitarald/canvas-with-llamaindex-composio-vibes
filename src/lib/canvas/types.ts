@@ -10,7 +10,7 @@ export interface LinkItem {
   url: string;
 }
 
-export type CardType = "project" | "entity" | "note" | "chart";
+export type CardType = "project" | "entity" | "note" | "chart" | "service" | "database" | "messagequeue" | "apigateway" | "externalservice" | "issue";
 
 export interface ProjectData {
   field1: string; // text
@@ -42,7 +42,67 @@ export interface ChartData {
   field1_id: number; // id counter
 }
 
-export type ItemData = ProjectData | EntityData | NoteData | ChartData;
+export interface ServiceData {
+  field1: string; // service name/identifier
+  field2: string; // health status (healthy/warning/error)
+  field3: string; // service type (web/api/worker/etc)
+  field4: ChartMetric[]; // resource metrics (CPU, Memory, etc)
+  field4_id: number; // metrics id counter
+  field5: string; // deployment info/version
+  field6: string[]; // dependencies (other service names)
+}
+
+export interface DatabaseData {
+  field1: string; // database name
+  field2: string; // database type (postgresql/mysql/mongodb/etc)
+  field3: string; // connection status
+  field4: ChartMetric[]; // performance metrics
+  field4_id: number; // metrics id counter
+  field5: string; // schema info/size
+  field6: string[]; // connected services
+}
+
+export interface MessageQueueData {
+  field1: string; // queue/topic name
+  field2: string; // queue type (rabbitmq/kafka/sqs/etc)
+  field3: string; // status
+  field4: ChartMetric[]; // throughput metrics
+  field4_id: number; // metrics id counter
+  field5: string; // message count/backlog
+  field6: string[]; // producers/consumers
+}
+
+export interface ApiGatewayData {
+  field1: string; // gateway name
+  field2: string; // gateway type (nginx/traefik/aws-alb/etc)
+  field3: string; // status
+  field4: ChartMetric[]; // traffic metrics
+  field4_id: number; // metrics id counter
+  field5: string; // routing rules count
+  field6: string[]; // backend services
+}
+
+export interface ExternalServiceData {
+  field1: string; // service name
+  field2: string; // service provider (aws/stripe/auth0/etc)
+  field3: string; // connection status
+  field4: ChartMetric[]; // usage metrics
+  field4_id: number; // metrics id counter
+  field5: string; // API version/endpoint
+  field6: string[]; // dependent internal services
+}
+
+export interface IssueData {
+  field1: string; // issue title
+  field2: string; // severity (critical/high/medium/low)
+  field3: string; // status (open/investigating/resolved)
+  field4: ChecklistItem[]; // action items/debugging steps
+  field4_id: number; // checklist id counter
+  field5: string; // affected services
+  field6: string; // incident timeline/notes
+}
+
+export type ItemData = ProjectData | EntityData | NoteData | ChartData | ServiceData | DatabaseData | MessageQueueData | ApiGatewayData | ExternalServiceData | IssueData;
 
 export interface Item {
   id: string;

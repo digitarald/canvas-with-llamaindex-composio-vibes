@@ -184,9 +184,10 @@ export function CardRenderer(props: {
     );
   }
 
-  const e = item.data as EntityData;
-  const setEntity = (partial: Partial<EntityData>) => onUpdateData((prev) => ({ ...(prev as EntityData), ...partial }));
-  return (
+  if (item.type === "entity") {
+    const e = item.data as EntityData;
+    const setEntity = (partial: Partial<EntityData>) => onUpdateData((prev) => ({ ...(prev as EntityData), ...partial }));
+    return (
     <div className="mt-4">
       <div className="mb-3">
         <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (Text)</label>
@@ -232,7 +233,8 @@ export function CardRenderer(props: {
         </div>
       </div>
     </div>
-  );
+    );
+  }
 
   // Database card types
   if (item.type === "table") {

@@ -1723,7 +1723,7 @@ export default function CopilotKitPage() {
               
               <div className="text-xs text-gray-500 space-y-1">
                 <p>📄 <strong>Create New:</strong> Creates a fresh sheet and opens it in a new tab. Current canvas items will be synced automatically.</p>
-                <p>💡 <strong>Import Existing:</strong> Make sure your sheet is publicly accessible or you&apos;re signed in to Composio with the right Google account.</p>
+                <p>💡 <strong>Import Existing:</strong> Make sure your sheet is publicly accessible or you're signed in to Composio with the right Google account.</p>
                 <p>🤖 The system will analyze your data and create the best card types (projects, entities, notes, or charts).</p>
               </div>
             </div>
@@ -1760,7 +1760,7 @@ export default function CopilotKitPage() {
               
               <p className="text-sm text-gray-600">
                 Importing will completely replace your current canvas data with the sheet contents. 
-                Your current canvas items will be lost unless you&apos;ve saved them elsewhere.
+                Your current canvas items will be lost unless you've saved them elsewhere.
               </p>
               
               <div className="flex gap-2">

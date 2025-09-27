@@ -12,7 +12,7 @@ import ShikiHighlighter from "react-shiki/web";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import { EmptyState } from "@/components/empty-state";
 import { cn, getContentArg } from "@/lib/utils";
-import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType } from "@/lib/canvas/types";
+import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, InvestorData, UpdateData, FeedbackData, MilestoneData, CardType } from "@/lib/canvas/types";
 import { initialState, isNonEmptyAgentState } from "@/lib/canvas/state";
 import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric } from "@/lib/canvas/updates";
 import useMediaQuery from "@/hooks/use-media-query";
@@ -153,10 +153,30 @@ export default function CopilotKitPage() {
         "  - field1: string (textarea)",
         "- chart.data:",
         "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''",
+        "- investor.data:",
+        "  - field1: string (contact info: name, email, phone)",
+        "  - field2: string (select: 'Pre-Seed' | 'Seed' | 'Series A' | 'Series B+' | 'Angel')",
+        "  - field3: string (communication preferences)",
+        "  - field4: ChecklistItem[] (engagement tracking)",
+        "- update.data:",
+        "  - field1: string (textarea; update content)",
+        "  - field2: string (select: 'Weekly' | 'Monthly' | 'Quarterly' | 'Ad-hoc')",
+        "  - field3: string (date 'YYYY-MM-DD')",
+        "  - field4: Array<{id: string, label: string, value: number | ''}> (key metrics/highlights)",
+        "- feedback.data:",
+        "  - field1: string (textarea; feedback content)",
+        "  - field2: string (select: 'High' | 'Medium' | 'Low')",
+        "  - field3: string (date 'YYYY-MM-DD'; deadline)",
+        "  - field4: ChecklistItem[] (action items)",
+        "- milestone.data:",
+        "  - field1: string (milestone description)",
+        "  - field2: string (select: 'Fundraising' | 'Product' | 'Revenue' | 'Team' | 'Other')",
+        "  - field3: string (date 'YYYY-MM-DD'; target date)",
+        "  - field4: Array<{id: string, label: string, value: number | ''}> (dependencies/progress metrics)",
       ].join("\n");
       const toolUsageHints = [
         "TOOL USAGE HINTS:",
-        "- To create cards, call createItem with { type: 'project' | 'entity' | 'note' | 'chart', name?: string } and use returned id.",
+        "- To create cards, call createItem with { type: 'project' | 'entity' | 'note' | 'chart' | 'investor' | 'update' | 'feedback' | 'milestone', name?: string } and use returned id.",
         "- Prefer calling specific actions: setProjectField1, setProjectField2, setProjectField3, addProjectChecklistItem, setProjectChecklistItem, removeProjectChecklistItem.",
         "- field2 values: 'Option A' | 'Option B' | 'Option C' | '' (empty clears).",
         "- field3 accepts natural dates (e.g., 'tomorrow', '2025-01-30'); it will be normalized to YYYY-MM-DD.",
@@ -238,6 +258,10 @@ export default function CopilotKitPage() {
         { id: "entity", label: "Entity" },
         { id: "note", label: "Note" },
         { id: "chart", label: "Chart" },
+        { id: "investor", label: "Investor" },
+        { id: "update", label: "Update" },
+        { id: "feedback", label: "Feedback" },
+        { id: "milestone", label: "Milestone" },
       ];
       let selected: CardType | "" = "";
       return (
@@ -858,7 +882,7 @@ export default function CopilotKitPage() {
     description: "Create a new item.",
     available: "remote",
     parameters: [
-      { name: "type", type: "string", required: true, description: "One of: project, entity, note, chart." },
+      { name: "type", type: "string", required: true, description: "One of: project, entity, note, chart, investor, update, feedback, milestone." },
       { name: "name", type: "string", required: false, description: "Optional item name." },
     ],
     handler: ({ type, name }: { type: string; name?: string }) => {

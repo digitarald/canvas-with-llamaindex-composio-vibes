@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { X, Plus } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Progress } from "@/components/ui/progress";
-import type { ChartData, EntityData, Item, ItemData, NoteData, ProjectData } from "@/lib/canvas/types";
+import type { ChartData, EntityData, Item, ItemData, NoteData, ProjectData, ResearchTopicData, InsightData } from "@/lib/canvas/types";
 import { chartAddField1Metric, chartRemoveField1Metric, chartSetField1Label, chartSetField1Value, projectAddField4Item, projectRemoveField4Item, projectSetField4ItemDone, projectSetField4ItemText } from "@/lib/canvas/updates";
 
 export function CardRenderer(props: {
@@ -16,16 +16,80 @@ export function CardRenderer(props: {
 
   if (item.type === "note") {
     const d = item.data as NoteData;
+    const setNote = (partial: Partial<NoteData>) => onUpdateData((prev) => ({ ...(prev as NoteData), ...partial }));
     return (
       <div className="mt-4">
-        <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (textarea)</label>
-        <TextareaAutosize
-          value={d.field1 ?? ""}
-          onChange={(e) => onUpdateData(() => ({ field1: e.target.value }))}
-          placeholder="Write note..."
-          className="min-h-40 w-full resize-none rounded-md border bg-white/60 p-3 text-sm leading-6 outline-none placeholder:text-gray-400 transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
-          minRows={6}
-        />
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (Content)</label>
+          <TextareaAutosize
+            value={d.field1 ?? ""}
+            onChange={(e) => setNote({ field1: e.target.value })}
+            placeholder="Write note..."
+            className="min-h-40 w-full resize-none rounded-md border bg-white/60 p-3 text-sm leading-6 outline-none placeholder:text-gray-400 transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            minRows={6}
+          />
+        </div>
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 2 (Source Attribution & Credibility)</label>
+          <input
+            value={d.field2 ?? ""}
+            onChange={(e) => setNote({ field2: e.target.value })}
+            placeholder="Source URL, credibility score, publication info..."
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+          />
+        </div>
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 3 (Annotation Tags)</label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {(d.field3 ?? []).map((tag, i) => (
+              <span key={i} className="inline-flex items-center gap-1 rounded-full bg-accent/20 border-accent text-accent px-2 py-0.5 text-xs">
+                {tag}
+                <button
+                  onClick={() => setNote({ field3: (d.field3 ?? []).filter((_, idx) => idx !== i) })}
+                  className="hover:text-accent/70"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+          <input
+            placeholder="Add tags (themes, relevance, sentiment)..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                setNote({ field3: [...(d.field3 ?? []), e.currentTarget.value.trim()] });
+                e.currentTarget.value = '';
+              }
+            }}
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+          />
+        </div>
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 4 (Cross-References)</label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {(d.field4 ?? []).map((ref, i) => (
+              <span key={i} className="inline-flex items-center gap-1 rounded-full bg-blue-100 border-blue-300 text-blue-700 px-2 py-0.5 text-xs">
+                {ref}
+                <button
+                  onClick={() => setNote({ field4: (d.field4 ?? []).filter((_, idx) => idx !== i) })}
+                  className="hover:text-blue-500"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+          <input
+            placeholder="Add cross-references and connections..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                setNote({ field4: [...(d.field4 ?? []), e.currentTarget.value.trim()] });
+                e.currentTarget.value = '';
+              }
+            }}
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+          />
+        </div>
       </div>
     );
   }
@@ -90,6 +154,195 @@ export function CardRenderer(props: {
               </button>
             </div>
           );})}
+        </div>
+      </div>
+    );
+  }
+
+  if (item.type === "research-topic") {
+    const d = item.data as ResearchTopicData;
+    const setResearch = (partial: Partial<ResearchTopicData>) => onUpdateData((prev) => ({ ...(prev as ResearchTopicData), ...partial }));
+    return (
+      <div className="mt-4 @container">
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (Research Question/Hypothesis)</label>
+          <TextareaAutosize
+            value={d.field1}
+            onChange={(e) => setResearch({ field1: e.target.value })}
+            placeholder="What research question or hypothesis are you investigating?"
+            className="w-full resize-none rounded-md border bg-white/60 p-3 text-sm leading-6 outline-none placeholder:text-gray-400 transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            minRows={3}
+          />
+        </div>
+        <div className="contents @xs:grid gap-3 md:grid-cols-2">
+          <div className="@max-xs:mb-3">
+            <label className="mb-1 block text-xs font-medium text-gray-500">Field 2 (Research Status)</label>
+            <select
+              value={d.field2}
+              onChange={(e) => setResearch({ field2: e.target.value })}
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent"
+            >
+              <option value="Scoping">Scoping</option>
+              <option value="Data Collection">Data Collection</option>
+              <option value="Analysis">Analysis</option>
+              <option value="Synthesis">Synthesis</option>
+              <option value="Complete">Complete</option>
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Field 3 (Target Completion Date)</label>
+            <input
+              type="date"
+              value={d.field3}
+              onChange={(e) => setResearch({ field3: e.target.value })}
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent"
+            />
+          </div>
+        </div>
+        <div className="mt-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 4 (Data Sources)</label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {(d.field4 ?? []).map((source, i) => (
+              <span key={i} className="inline-flex items-center gap-1 rounded-full bg-green-100 border-green-300 text-green-700 px-2 py-0.5 text-xs">
+                {source}
+                <button
+                  onClick={() => setResearch({ field4: (d.field4 ?? []).filter((_, idx) => idx !== i) })}
+                  className="hover:text-green-500"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+          <input
+            placeholder="Add data sources (APIs, databases, studies)..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                setResearch({ field4: [...(d.field4 ?? []), e.currentTarget.value.trim()] });
+                e.currentTarget.value = '';
+              }
+            }}
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+          />
+        </div>
+        <div className="mt-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 5 (Key Findings)</label>
+          <TextareaAutosize
+            value={d.field5}
+            onChange={(e) => setResearch({ field5: e.target.value })}
+            placeholder="AI-generated insights and key findings will appear here..."
+            className="w-full resize-none rounded-md border bg-white/60 p-3 text-sm leading-6 outline-none placeholder:text-gray-400 transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            minRows={4}
+          />
+        </div>
+        <div className="contents @xs:grid gap-3 md:grid-cols-2 mt-3">
+          <div className="@max-xs:mb-3">
+            <label className="mb-1 block text-xs font-medium text-gray-500">Field 6 (Confidence Level)</label>
+            <select
+              value={d.field6}
+              onChange={(e) => setResearch({ field6: e.target.value })}
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent"
+            >
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Very High">Very High</option>
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Field 7 (Related Topics)</label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {(d.field7 ?? []).map((topic, i) => (
+                <span key={i} className="inline-flex items-center gap-1 rounded-full bg-purple-100 border-purple-300 text-purple-700 px-2 py-0.5 text-xs">
+                  {topic}
+                  <button
+                    onClick={() => setResearch({ field7: (d.field7 ?? []).filter((_, idx) => idx !== i) })}
+                    className="hover:text-purple-500"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+            <input
+              placeholder="Add related topics..."
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                  setResearch({ field7: [...(d.field7 ?? []), e.currentTarget.value.trim()] });
+                  e.currentTarget.value = '';
+                }
+              }}
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (item.type === "insight") {
+    const d = item.data as InsightData;
+    const setInsight = (partial: Partial<InsightData>) => onUpdateData((prev) => ({ ...(prev as InsightData), ...partial }));
+    return (
+      <div className="mt-4">
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (Insight Statement/Conclusion)</label>
+          <TextareaAutosize
+            value={d.field1}
+            onChange={(e) => setInsight({ field1: e.target.value })}
+            placeholder="What is the key insight or conclusion from your research?"
+            className="w-full resize-none rounded-md border bg-white/60 p-3 text-sm leading-6 outline-none placeholder:text-gray-400 transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            minRows={3}
+          />
+        </div>
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 2 (Evidence Strength)</label>
+          <select
+            value={d.field2}
+            onChange={(e) => setInsight({ field2: e.target.value })}
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent"
+          >
+            <option value="Weak">Weak</option>
+            <option value="Moderate">Moderate</option>
+            <option value="Strong">Strong</option>
+            <option value="Conclusive">Conclusive</option>
+          </select>
+        </div>
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 3 (Supporting Data Points)</label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {(d.field3 ?? []).map((dataPoint, i) => (
+              <span key={i} className="inline-flex items-center gap-1 rounded-full bg-orange-100 border-orange-300 text-orange-700 px-2 py-0.5 text-xs">
+                {dataPoint}
+                <button
+                  onClick={() => setInsight({ field3: (d.field3 ?? []).filter((_, idx) => idx !== i) })}
+                  className="hover:text-orange-500"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+          <input
+            placeholder="Add supporting data points and source references..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                setInsight({ field3: [...(d.field3 ?? []), e.currentTarget.value.trim()] });
+                e.currentTarget.value = '';
+              }
+            }}
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+          />
+        </div>
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 4 (Counterarguments or Limitations)</label>
+          <TextareaAutosize
+            value={d.field4}
+            onChange={(e) => setInsight({ field4: e.target.value })}
+            placeholder="What are the potential counterarguments, limitations, or caveats to this insight?"
+            className="w-full resize-none rounded-md border bg-white/60 p-3 text-sm leading-6 outline-none placeholder:text-gray-400 transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            minRows={3}
+          />
         </div>
       </div>
     );

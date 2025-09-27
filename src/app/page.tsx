@@ -12,7 +12,7 @@ import ShikiHighlighter from "react-shiki/web";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import { EmptyState } from "@/components/empty-state";
 import { cn, getContentArg } from "@/lib/utils";
-import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType } from "@/lib/canvas/types";
+import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType, ResearchTopicData, InsightData } from "@/lib/canvas/types";
 import { initialState, isNonEmptyAgentState } from "@/lib/canvas/state";
 import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric } from "@/lib/canvas/updates";
 import useMediaQuery from "@/hooks/use-media-query";
@@ -238,6 +238,8 @@ export default function CopilotKitPage() {
         { id: "entity", label: "Entity" },
         { id: "note", label: "Note" },
         { id: "chart", label: "Chart" },
+        { id: "research-topic", label: "Research Topic" },
+        { id: "insight", label: "Insight" },
       ];
       let selected: CardType | "" = "";
       return (
@@ -339,11 +341,33 @@ export default function CopilotKitPage() {
           field3_options: ["Tag 1", "Tag 2", "Tag 3"],
         } as EntityData;
       case "note":
-        return { field1: "" } as NoteData;
+        return { 
+          field1: "", 
+          field2: "", 
+          field3: [], 
+          field4: [] 
+        } as NoteData;
       case "chart":
         return { field1: [], field1_id: 0 } as ChartData;
+      case "research-topic":
+        return {
+          field1: "", // research question/hypothesis
+          field2: "Scoping", // research status
+          field3: "", // target completion date
+          field4: [], // data sources
+          field5: "", // key findings
+          field6: "Low", // confidence level
+          field7: [], // related topics
+        } as ResearchTopicData;
+      case "insight":
+        return {
+          field1: "", // insight statement/conclusion
+          field2: "Weak", // evidence strength
+          field3: [], // supporting data points
+          field4: "", // counterarguments or limitations
+        } as InsightData;
       default:
-        return { content: "" } as NoteData;
+        return { field1: "" } as NoteData;
     }
   }, []);
 

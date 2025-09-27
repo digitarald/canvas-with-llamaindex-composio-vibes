@@ -71,7 +71,7 @@ def list_sheet_names(sheet_id: Annotated[str, "Google Sheets ID to list availabl
 # --- Frontend tool stubs (names/signatures only; execution happens in the UI) ---
 
 def createItem(
-    type: Annotated[str, "One of: project, entity, note, chart."],
+    type: Annotated[str, "One of: project, entity, note, chart, table, relationship, migration, query."],
     name: Annotated[Optional[str], "Optional item name."] = None,
 ) -> str:
     """Create a new canvas item and return its id."""
@@ -223,6 +223,32 @@ FIELD_SCHEMA = (
     "  - field1: string (textarea; represents description)\n"
     "- chart.data:\n"
     "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''\n"
+    "- table.data:\n"
+    "  - field1: string (table name)\n"
+    "  - field2: ColumnDefinition[] (columns with name, dataType, nullable, primaryKey, unique, defaultValue, comment)\n"
+    "  - field3: IndexDefinition[] (indexes with name, columns[], unique, type)\n"
+    "  - field4: string (table description)\n"
+    "- relationship.data:\n"
+    "  - field1: string (relationship name)\n"
+    "  - field2: string (source table id)\n"
+    "  - field3: string (target table id)\n"
+    "  - field4: string[] (source column names)\n"
+    "  - field5: string[] (target column names)\n"
+    "  - field6: string (relationship type: 'one-to-one' | 'one-to-many' | 'many-to-many')\n"
+    "  - field7: string (on delete action: 'CASCADE' | 'SET NULL' | 'RESTRICT' | 'NO ACTION')\n"
+    "  - field8: string (on update action: 'CASCADE' | 'SET NULL' | 'RESTRICT' | 'NO ACTION')\n"
+    "- migration.data:\n"
+    "  - field1: string (migration name)\n"
+    "  - field2: string (version/timestamp)\n"
+    "  - field3: MigrationStep[] (steps with type, sql, rollback, description)\n"
+    "  - field4: string (status: 'pending' | 'applied' | 'failed' | 'rolled_back')\n"
+    "  - field5: string (migration description)\n"
+    "- query.data:\n"
+    "  - field1: string (query name)\n"
+    "  - field2: string (SQL query)\n"
+    "  - field3: string (query description)\n"
+    "  - field4: string (query type: 'SELECT' | 'INSERT' | 'UPDATE' | 'DELETE' | 'VIEW' | 'PROCEDURE')\n"
+    "  - field5: string[] (tags)\n"
 )
 
 SYSTEM_PROMPT = (
@@ -230,7 +256,7 @@ SYSTEM_PROMPT = (
     + FIELD_SCHEMA +
     "\nMUTATION/TOOL POLICY:\n"
     "- When you claim to create/update/delete, you MUST call the corresponding tool(s) (frontend or backend).\n"
-    "- To create new cards, call the frontend tool `createItem` with `type` in {project, entity, note, chart} and optional `name`.\n"
+    "- To create new cards, call the frontend tool `createItem` with `type` in {project, entity, note, chart, table, relationship, migration, query} and optional `name`.\n"
     "- After tools run, rely on the latest shared state (ground truth) when replying.\n"
     "- To set a card's subtitle (never the data fields): use setItemSubtitleOrDescription.\n\n"
     "DESCRIPTION MAPPING:\n"

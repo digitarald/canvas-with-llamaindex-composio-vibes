@@ -204,7 +204,7 @@ export default function CopilotKitPage() {
       const toolUsageHints = [
         "TOOL USAGE HINTS:",
         "- To create cards, call createItem with { type: 'project' | 'entity' | 'note' | 'chart' | 'objective' | 'key-result' | 'scenario' | 'initiative' | 'risk', name?: string } and use returned id.",
-        "- Prefer calling specific actions: setProjectField1, setProjectField2, setProjectField3, addProjectChecklistItem, setProjectChecklistItem, removeProjectChecklistItem.",
+        "- Prefer calling specific actions: setProjectField1, setObjectiveField1, setKeyResultField2, setScenarioField1, setInitiativeField1, setRiskField1, addProjectChecklistItem, setProjectChecklistItem, removeProjectChecklistItem.",
         "- field2 values: 'Option A' | 'Option B' | 'Option C' | '' (empty clears).",
         "- field3 accepts natural dates (e.g., 'tomorrow', '2025-01-30'); it will be normalized to YYYY-MM-DD.",
         "- Checklist edits accept either the generated id (e.g., '001') or a numeric index (e.g., '1', 1-based).",
@@ -1471,16 +1471,13 @@ export default function CopilotKitPage() {
             if (syncResponse.ok) {
               console.log("Successfully synced existing items to new sheet");
               // Set the newly created sheet as the sync target and update title/description
-              setState((prev) => {
-                const base = prev ?? initialState;
-                return {
-                  ...base,
-                  globalTitle: result.title || title.trim(),
-                  globalDescription: `Connected to Google Sheet: ${result.title || title.trim()}`,
-                  syncSheetId: sheetId,
-                  syncSheetName: "Sheet1" 
-                } as AgentState;
-              });
+              setState((prev) => ({
+                ...(prev ?? initialState),
+                globalTitle: result.title || title.trim(),
+                globalDescription: `Connected to Google Sheet: ${result.title || title.trim()}`,
+                syncSheetId: sheetId,
+                syncSheetName: "Sheet1" 
+              }));
             } else {
               console.warn("Failed to sync existing items to new sheet");
             }

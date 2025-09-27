@@ -190,6 +190,53 @@ def clearChartField1Value(itemId: Annotated[str, "Chart id."], index: Annotated[
 def removeChartField1(itemId: Annotated[str, "Chart id."], index: Annotated[int, "Metric index (0-based)."]) -> str:
     return f"removeChartField1({itemId}, {index})"
 
+# Objective actions
+def setObjectiveField1(value: Annotated[str, "New description for objective.data.field1."], itemId: Annotated[str, "Objective id."]) -> str:
+    return f"setObjectiveField1({value}, {itemId})"
+
+def setObjectiveField2(value: Annotated[str, "New priority for objective.data.field2."], itemId: Annotated[str, "Objective id."]) -> str:
+    return f"setObjectiveField2({value}, {itemId})"
+
+def setObjectiveField3(date: Annotated[str, "New deadline for objective.data.field3."], itemId: Annotated[str, "Objective id."]) -> str:
+    return f"setObjectiveField3({date}, {itemId})"
+
+# Key Result actions
+def setKeyResultField2(value: Annotated[str, "New description for key-result.data.field2."], itemId: Annotated[str, "Key result id."]) -> str:
+    return f"setKeyResultField2({value}, {itemId})"
+
+def setKeyResultField3(value: Annotated[str, "New unit type for key-result.data.field3."], itemId: Annotated[str, "Key result id."]) -> str:
+    return f"setKeyResultField3({value}, {itemId})"
+
+def setKeyResultField4(value: Annotated[str, "New current/target for key-result.data.field4."], itemId: Annotated[str, "Key result id."]) -> str:
+    return f"setKeyResultField4({value}, {itemId})"
+
+# Scenario actions
+def setScenarioField1(value: Annotated[str, "New description for scenario.data.field1."], itemId: Annotated[str, "Scenario id."]) -> str:
+    return f"setScenarioField1({value}, {itemId})"
+
+def setScenarioField2(value: Annotated[str, "New probability for scenario.data.field2."], itemId: Annotated[str, "Scenario id."]) -> str:
+    return f"setScenarioField2({value}, {itemId})"
+
+# Initiative actions
+def setInitiativeField1(value: Annotated[str, "New description for initiative.data.field1."], itemId: Annotated[str, "Initiative id."]) -> str:
+    return f"setInitiativeField1({value}, {itemId})"
+
+def setInitiativeField2(value: Annotated[str, "New status for initiative.data.field2."], itemId: Annotated[str, "Initiative id."]) -> str:
+    return f"setInitiativeField2({value}, {itemId})"
+
+def setInitiativeField3(value: Annotated[str, "New timeline for initiative.data.field3."], itemId: Annotated[str, "Initiative id."]) -> str:
+    return f"setInitiativeField3({value}, {itemId})"
+
+# Risk actions
+def setRiskField1(value: Annotated[str, "New description for risk.data.field1."], itemId: Annotated[str, "Risk id."]) -> str:
+    return f"setRiskField1({value}, {itemId})"
+
+def setRiskField2(value: Annotated[str, "New severity for risk.data.field2."], itemId: Annotated[str, "Risk id."]) -> str:
+    return f"setRiskField2({value}, {itemId})"
+
+def setRiskField3(value: Annotated[str, "New mitigation strategy for risk.data.field3."], itemId: Annotated[str, "Risk id."]) -> str:
+    return f"setRiskField3({value}, {itemId})"
+
 def openSheetSelectionModal() -> str:
     """Open modal for selecting Google Sheets."""
     return "openSheetSelectionModal()"
@@ -223,6 +270,31 @@ FIELD_SCHEMA = (
     "  - field1: string (textarea; represents description)\n"
     "- chart.data:\n"
     "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''\n"
+    "- objective.data:\n"
+    "  - field1: string (description text)\n"
+    "  - field2: string (priority: 'High' | 'Medium' | 'Low')\n"
+    "  - field3: string (deadline date 'YYYY-MM-DD')\n"
+    "  - field4: ChecklistItem[] (key results)\n"
+    "- key-result.data:\n"
+    "  - field1: Array<{id: string, label: string, value: number | ''}> (progress metrics)\n"
+    "  - field2: string (description text)\n"
+    "  - field3: string (unit type: 'Number' | 'Percentage' | 'Currency' | 'Boolean')\n"
+    "  - field4: string (current/target like '25 / 100')\n"
+    "- scenario.data:\n"
+    "  - field1: string (scenario description)\n"
+    "  - field2: string (probability: 'High' | 'Medium' | 'Low')\n"
+    "  - field3: string[] (impact areas)\n"
+    "  - field3_options: string[] (available impact areas)\n"
+    "- initiative.data:\n"
+    "  - field1: string (description text)\n"
+    "  - field2: string (status: 'Planning' | 'In Progress' | 'Completed' | 'On Hold')\n"
+    "  - field3: string (timeline estimate)\n"
+    "  - field4: ChecklistItem[] (tasks and milestones)\n"
+    "- risk.data:\n"
+    "  - field1: string (risk description)\n"
+    "  - field2: string (severity: 'Critical' | 'High' | 'Medium' | 'Low')\n"
+    "  - field3: string (mitigation strategy)\n"
+    "  - field4: ChecklistItem[] (monitoring triggers)\n"
 )
 
 SYSTEM_PROMPT = (
@@ -230,7 +302,7 @@ SYSTEM_PROMPT = (
     + FIELD_SCHEMA +
     "\nMUTATION/TOOL POLICY:\n"
     "- When you claim to create/update/delete, you MUST call the corresponding tool(s) (frontend or backend).\n"
-    "- To create new cards, call the frontend tool `createItem` with `type` in {project, entity, note, chart} and optional `name`.\n"
+    "- To create new cards, call the frontend tool `createItem` with `type` in {project, entity, note, chart, objective, key-result, scenario, initiative, risk} and optional `name`.\n"
     "- After tools run, rely on the latest shared state (ground truth) when replying.\n"
     "- To set a card's subtitle (never the data fields): use setItemSubtitleOrDescription.\n\n"
     "DESCRIPTION MAPPING:\n"
@@ -311,6 +383,20 @@ agentic_chat_router = get_ag_ui_workflow_router(
         setChartField1Value,
         clearChartField1Value,
         removeChartField1,
+        setObjectiveField1,
+        setObjectiveField2,
+        setObjectiveField3,
+        setKeyResultField2,
+        setKeyResultField3,
+        setKeyResultField4,
+        setScenarioField1,
+        setScenarioField2,
+        setInitiativeField1,
+        setInitiativeField2,
+        setInitiativeField3,
+        setRiskField1,
+        setRiskField2,
+        setRiskField3,
         openSheetSelectionModal,
         setSyncSheetId,
     ],

@@ -330,7 +330,7 @@ export function CardRenderer(props: {
             {d.field1.map((m, i) => {
               const number = String(m.id ?? String(i + 1)).padStart(3, "0");
               return (
-              <div key={m.id ?? `metric-${i}`} className="flex items-center gap-3">
+                <div key={m.id ?? `metric-${i}`} className="flex items-center gap-3">
                 <span className="text-xs font-mono text-muted-foreground/80">{number}</span>
                 <input
                   value={m.label}
@@ -364,8 +364,9 @@ export function CardRenderer(props: {
                 >
                   <X className="h-5 w-5 md:h-6 md:w-6" />
                 </button>
-              </div>
-            );})}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

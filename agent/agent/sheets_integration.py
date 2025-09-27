@@ -250,6 +250,45 @@ def create_default_data(item_type: str) -> Dict[str, Any]:
             "field1": [],
             "field1_id": 0,
         }
+    elif item_type == "objective":
+        return {
+            "field1": "",
+            "field2": "",
+            "field3": "",
+            "field4": [],
+            "field4_id": 0,
+        }
+    elif item_type == "key-result":
+        return {
+            "field1": [],
+            "field1_id": 0,
+            "field2": "",
+            "field3": "",
+            "field4": "",
+        }
+    elif item_type == "scenario":
+        return {
+            "field1": "",
+            "field2": "",
+            "field3": [],
+            "field3_options": ["Revenue", "User Growth", "Team", "Product", "Market", "Competition"],
+        }
+    elif item_type == "initiative":
+        return {
+            "field1": "",
+            "field2": "",
+            "field3": "",
+            "field4": [],
+            "field4_id": 0,
+        }
+    elif item_type == "risk":
+        return {
+            "field1": "",
+            "field2": "",
+            "field3": "",
+            "field4": [],
+            "field4_id": 0,
+        }
     else:
         return {"field1": ""}
 
@@ -262,11 +301,35 @@ def determine_item_type(row: List[str], headers: List[str]) -> str:
         headers: List of header names
         
     Returns:
-        One of: 'project', 'entity', 'note', 'chart'
+        One of: 'project', 'entity', 'note', 'chart', 'objective', 'key-result', 'scenario', 'initiative', 'risk'
     """
+    headers_text = ' '.join(headers).lower()
+    row_text = ' '.join(row).lower()
+    
+    # Strategic planning keywords
+    objective_indicators = ['objective', 'goal', 'mission', 'vision', 'strategic']
+    if any(indicator in headers_text or indicator in row_text for indicator in objective_indicators):
+        return "objective"
+    
+    key_result_indicators = ['key result', 'kr', 'metric', 'kpi', 'measure', 'target']
+    if any(indicator in headers_text or indicator in row_text for indicator in key_result_indicators):
+        return "key-result"
+    
+    scenario_indicators = ['scenario', 'what if', 'pivot', 'branch', 'alternative']
+    if any(indicator in headers_text or indicator in row_text for indicator in scenario_indicators):
+        return "scenario"
+    
+    initiative_indicators = ['initiative', 'project', 'program', 'effort', 'campaign']
+    if any(indicator in headers_text or indicator in row_text for indicator in initiative_indicators):
+        return "initiative"
+    
+    risk_indicators = ['risk', 'threat', 'danger', 'concern', 'issue', 'blocker']
+    if any(indicator in headers_text or indicator in row_text for indicator in risk_indicators):
+        return "risk"
+    
     # Look for date patterns - suggests project
     date_indicators = ['date', 'due', 'deadline', 'start', 'end', 'created']
-    if any(indicator in ' '.join(headers).lower() for indicator in date_indicators):
+    if any(indicator in headers_text for indicator in date_indicators):
         return "project"
     
     # Look for numeric data - suggests chart

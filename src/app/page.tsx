@@ -18,6 +18,7 @@ import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDon
 import useMediaQuery from "@/hooks/use-media-query";
 import ItemHeader from "@/components/canvas/ItemHeader";
 import NewItemMenu from "@/components/canvas/NewItemMenu";
+import { ProjectInsightsDashboard } from "@/components/insights/ProjectInsightsDashboard";
 
 export default function CopilotKitPage() {
   const { state, setState } = useCoAgent<AgentState>({
@@ -38,6 +39,7 @@ export default function CopilotKitPage() {
 
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [showJsonView, setShowJsonView] = useState<boolean>(false);
+  const [showInsights, setShowInsights] = useState<boolean>(false);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const { scrollY } = useScroll({ container: scrollAreaRef });
   const headerScrollThreshold = 64;
@@ -1426,6 +1428,10 @@ export default function CopilotKitPage() {
                         </ShikiHighlighter>
                       </div>
                     </div>
+                  ) : showInsights ? (
+                    <div className="pb-16">
+                      <ProjectInsightsDashboard state={viewState} />
+                    </div>
                   ) : (
                     <div className="grid gap-6 lg:grid-cols-2 pb-20">
                       {(viewState.items ?? []).map((item) => (
@@ -1484,6 +1490,16 @@ export default function CopilotKitPage() {
                 }}
               >
                 📊 Sheets
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className={cn(
+                  "gap-1.25 text-base font-semibold rounded-none border-r-0",
+                )}
+                onClick={() => setShowInsights((v) => !v)}
+              >
+                {showInsights ? "📊 Hide" : "🔍 Insights"}
               </Button>
               <Button
                 type="button"

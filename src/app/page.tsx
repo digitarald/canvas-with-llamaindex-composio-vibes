@@ -156,7 +156,7 @@ export default function CopilotKitPage() {
       ].join("\n");
       const toolUsageHints = [
         "TOOL USAGE HINTS:",
-        "- To create cards, call createItem with { type: 'project' | 'entity' | 'note' | 'chart', name?: string } and use returned id.",
+        "- To create cards, call createItem with { type: 'project' | 'entity' | 'note' | 'chart' | 'business-metric' | 'automation-rule', name?: string } and use returned id.",
         "- Prefer calling specific actions: setProjectField1, setProjectField2, setProjectField3, addProjectChecklistItem, setProjectChecklistItem, removeProjectChecklistItem.",
         "- field2 values: 'Option A' | 'Option B' | 'Option C' | '' (empty clears).",
         "- field3 accepts natural dates (e.g., 'tomorrow', '2025-01-30'); it will be normalized to YYYY-MM-DD.",
@@ -708,6 +708,64 @@ export default function CopilotKitPage() {
     },
   });
 
+  // Enhanced Project fields (field5, field6, field7)
+  useCopilotAction({
+    name: "setProjectField5",
+    description: "Update project field5 (ROI calculation).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "ROI calculation - actual vs. projected." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (project)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field5?: string };
+        if (Object.prototype.hasOwnProperty.call(anyPrev, "field5")) {
+          return { ...anyPrev, field5: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setProjectField6",
+    description: "Update project field6 (resource allocation).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Resource allocation - time, money, tools." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (project)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field6?: string };
+        if (Object.prototype.hasOwnProperty.call(anyPrev, "field6")) {
+          return { ...anyPrev, field6: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setProjectField7",
+    description: "Update project field7 (success metrics and KPIs).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Success metrics and KPI tracking." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (project)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field7?: string };
+        if (Object.prototype.hasOwnProperty.call(anyPrev, "field7")) {
+          return { ...anyPrev, field7: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
   // Entity field updates and field3 (tags)
   useCopilotAction({
     name: "setEntityField1",
@@ -874,12 +932,204 @@ export default function CopilotKitPage() {
     },
   });
 
+  // Business Metric field updates
+  useCopilotAction({
+    name: "setBusinessMetricField1",
+    description: "Update business metric field1 (metric name).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Metric name (Revenue, CAC, LTV, etc.)." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (business-metric)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field1?: string };
+        if (Object.prototype.hasOwnProperty.call(anyPrev, "field1")) {
+          return { ...anyPrev, field1: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setBusinessMetricField2",
+    description: "Update business metric field2 (current value).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Current value with trend indicators." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (business-metric)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field2?: string };
+        if (Object.prototype.hasOwnProperty.call(anyPrev, "field2")) {
+          return { ...anyPrev, field2: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setBusinessMetricField3",
+    description: "Update business metric field3 (target value).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Target/goal value." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (business-metric)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field3?: string };
+        if (Object.prototype.hasOwnProperty.call(anyPrev, "field3")) {
+          return { ...anyPrev, field3: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setBusinessMetricField4",
+    description: "Update business metric field4 (data sources).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Data sources - connected platforms feeding this metric." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (business-metric)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field4?: string };
+        if (Object.prototype.hasOwnProperty.call(anyPrev, "field4")) {
+          return { ...anyPrev, field4: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setBusinessMetricField5",
+    description: "Update business metric field5 (AI insights).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "AI insights - pattern analysis and recommendations." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (business-metric)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field5?: string };
+        if (Object.prototype.hasOwnProperty.call(anyPrev, "field5")) {
+          return { ...anyPrev, field5: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setBusinessMetricField6",
+    description: "Update business metric field6 (automated actions).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Automated actions triggered based on thresholds." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (business-metric)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field6?: string };
+        if (Object.prototype.hasOwnProperty.call(anyPrev, "field6")) {
+          return { ...anyPrev, field6: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  // Automation Rule field updates
+  useCopilotAction({
+    name: "setAutomationRuleField1",
+    description: "Update automation rule field1 (rule name and triggers).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Rule name and trigger conditions." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (automation-rule)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field1?: string };
+        if (Object.prototype.hasOwnProperty.call(anyPrev, "field1")) {
+          return { ...anyPrev, field1: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setAutomationRuleField2",
+    description: "Update automation rule field2 (status).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Status (Active/Paused/Testing)." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (automation-rule)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field2?: string };
+        if (Object.prototype.hasOwnProperty.call(anyPrev, "field2")) {
+          return { ...anyPrev, field2: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setAutomationRuleField3",
+    description: "Update automation rule field3 (actions to execute).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Actions to execute - email campaigns, inventory orders, etc." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (automation-rule)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field3?: string };
+        if (Object.prototype.hasOwnProperty.call(anyPrev, "field3")) {
+          return { ...anyPrev, field3: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setAutomationRuleField4",
+    description: "Update automation rule field4 (performance metrics).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Success rate and performance metrics." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (automation-rule)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const anyPrev = prev as { field4?: string };
+        if (Object.prototype.hasOwnProperty.call(anyPrev, "field4")) {
+          return { ...anyPrev, field4: value } as ItemData;
+        }
+        return prev;
+      });
+    },
+  });
+
   useCopilotAction({
     name: "createItem",
     description: "Create a new item.",
     available: "remote",
     parameters: [
-      { name: "type", type: "string", required: true, description: "One of: project, entity, note, chart." },
+      { name: "type", type: "string", required: true, description: "One of: project, entity, note, chart, business-metric, automation-rule." },
       { name: "name", type: "string", required: false, description: "Optional item name." },
     ],
     handler: ({ type, name }: { type: string; name?: string }) => {

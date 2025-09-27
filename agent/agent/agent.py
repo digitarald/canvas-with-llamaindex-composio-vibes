@@ -190,6 +190,48 @@ def clearChartField1Value(itemId: Annotated[str, "Chart id."], index: Annotated[
 def removeChartField1(itemId: Annotated[str, "Chart id."], index: Annotated[int, "Metric index (0-based)."]) -> str:
     return f"removeChartField1({itemId}, {index})"
 
+# Business Metric actions
+def setBusinessMetricField1(value: Annotated[str, "Metric name (Revenue, CAC, LTV, etc.)"], itemId: Annotated[str, "Business metric id."]) -> str:
+    return f"setBusinessMetricField1({value}, {itemId})"
+
+def setBusinessMetricField2(value: Annotated[str, "Current value with trend indicators"], itemId: Annotated[str, "Business metric id."]) -> str:
+    return f"setBusinessMetricField2({value}, {itemId})"
+
+def setBusinessMetricField3(value: Annotated[str, "Target/goal value"], itemId: Annotated[str, "Business metric id."]) -> str:
+    return f"setBusinessMetricField3({value}, {itemId})"
+
+def setBusinessMetricField4(value: Annotated[str, "Data sources"], itemId: Annotated[str, "Business metric id."]) -> str:
+    return f"setBusinessMetricField4({value}, {itemId})"
+
+def setBusinessMetricField5(value: Annotated[str, "AI insights"], itemId: Annotated[str, "Business metric id."]) -> str:
+    return f"setBusinessMetricField5({value}, {itemId})"
+
+def setBusinessMetricField6(value: Annotated[str, "Automated actions"], itemId: Annotated[str, "Business metric id."]) -> str:
+    return f"setBusinessMetricField6({value}, {itemId})"
+
+# Automation Rule actions
+def setAutomationRuleField1(value: Annotated[str, "Rule name and trigger conditions"], itemId: Annotated[str, "Automation rule id."]) -> str:
+    return f"setAutomationRuleField1({value}, {itemId})"
+
+def setAutomationRuleField2(value: Annotated[str, "Status (Active/Paused/Testing)"], itemId: Annotated[str, "Automation rule id."]) -> str:
+    return f"setAutomationRuleField2({value}, {itemId})"
+
+def setAutomationRuleField3(value: Annotated[str, "Actions to execute"], itemId: Annotated[str, "Automation rule id."]) -> str:
+    return f"setAutomationRuleField3({value}, {itemId})"
+
+def setAutomationRuleField4(value: Annotated[str, "Success rate and performance metrics"], itemId: Annotated[str, "Automation rule id."]) -> str:
+    return f"setAutomationRuleField4({value}, {itemId})"
+
+# Enhanced Project actions (for new fields)
+def setProjectField5(value: Annotated[str, "ROI calculation (actual vs. projected)"], itemId: Annotated[str, "Project id."]) -> str:
+    return f"setProjectField5({value}, {itemId})"
+
+def setProjectField6(value: Annotated[str, "Resource allocation (time, money, tools)"], itemId: Annotated[str, "Project id."]) -> str:
+    return f"setProjectField6({value}, {itemId})"
+
+def setProjectField7(value: Annotated[str, "Success metrics and KPI tracking"], itemId: Annotated[str, "Project id."]) -> str:
+    return f"setProjectField7({value}, {itemId})"
+
 def openSheetSelectionModal() -> str:
     """Open modal for selecting Google Sheets."""
     return "openSheetSelectionModal()"
@@ -214,6 +256,9 @@ FIELD_SCHEMA = (
     "  - field2: string (select: 'Option A' | 'Option B' | 'Option C')\n"
     "  - field3: string (date 'YYYY-MM-DD')\n"
     "  - field4: ChecklistItem[] where ChecklistItem={id: string, text: string, done: boolean, proposed: boolean}\n"
+    "  - field5: string (ROI calculation - actual vs. projected)\n"
+    "  - field6: string (Resource allocation - time, money, tools)\n"
+    "  - field7: string (Success metrics and KPI tracking)\n"
     "- entity.data:\n"
     "  - field1: string\n"
     "  - field2: string (select: 'Option A' | 'Option B' | 'Option C')\n"
@@ -223,6 +268,18 @@ FIELD_SCHEMA = (
     "  - field1: string (textarea; represents description)\n"
     "- chart.data:\n"
     "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''\n"
+    "- business-metric.data:\n"
+    "  - field1: string (Metric name: Revenue, CAC, LTV, Conversion Rate, etc.)\n"
+    "  - field2: string (Current value with trend indicators)\n"
+    "  - field3: string (Target/goal value)\n"
+    "  - field4: string (Data sources - connected platforms feeding this metric)\n"
+    "  - field5: string (AI insights - pattern analysis and recommendations)\n"
+    "  - field6: string (Automated actions triggered based on thresholds)\n"
+    "- automation-rule.data:\n"
+    "  - field1: string (Rule name and trigger conditions)\n"
+    "  - field2: string (Status: 'Active' | 'Paused' | 'Testing')\n"
+    "  - field3: string (Actions to execute: email campaigns, inventory orders, etc.)\n"
+    "  - field4: string (Success rate and performance metrics)\n"
 )
 
 SYSTEM_PROMPT = (
@@ -230,7 +287,7 @@ SYSTEM_PROMPT = (
     + FIELD_SCHEMA +
     "\nMUTATION/TOOL POLICY:\n"
     "- When you claim to create/update/delete, you MUST call the corresponding tool(s) (frontend or backend).\n"
-    "- To create new cards, call the frontend tool `createItem` with `type` in {project, entity, note, chart} and optional `name`.\n"
+    "- To create new cards, call the frontend tool `createItem` with `type` in {project, entity, note, chart, business-metric, automation-rule} and optional `name`.\n"
     "- After tools run, rely on the latest shared state (ground truth) when replying.\n"
     "- To set a card's subtitle (never the data fields): use setItemSubtitleOrDescription.\n\n"
     "DESCRIPTION MAPPING:\n"
@@ -299,6 +356,9 @@ agentic_chat_router = get_ag_ui_workflow_router(
         setProjectField2,
         setProjectField3,
         clearProjectField3,
+        setProjectField5,
+        setProjectField6,
+        setProjectField7,
         addProjectChecklistItem,
         setProjectChecklistItem,
         removeProjectChecklistItem,
@@ -311,6 +371,16 @@ agentic_chat_router = get_ag_ui_workflow_router(
         setChartField1Value,
         clearChartField1Value,
         removeChartField1,
+        setBusinessMetricField1,
+        setBusinessMetricField2,
+        setBusinessMetricField3,
+        setBusinessMetricField4,
+        setBusinessMetricField5,
+        setBusinessMetricField6,
+        setAutomationRuleField1,
+        setAutomationRuleField2,
+        setAutomationRuleField3,
+        setAutomationRuleField4,
         openSheetSelectionModal,
         setSyncSheetId,
     ],

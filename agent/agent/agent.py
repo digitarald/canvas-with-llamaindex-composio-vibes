@@ -71,7 +71,7 @@ def list_sheet_names(sheet_id: Annotated[str, "Google Sheets ID to list availabl
 # --- Frontend tool stubs (names/signatures only; execution happens in the UI) ---
 
 def createItem(
-    type: Annotated[str, "One of: project, entity, note, chart."],
+    type: Annotated[str, "One of: project, entity, note, chart, api-endpoint, api-flow, mock-server, test-suite."],
     name: Annotated[Optional[str], "Optional item name."] = None,
 ) -> str:
     """Create a new canvas item and return its id."""
@@ -206,6 +206,79 @@ def syncCanvasToSheets() -> str:
     """Manually sync current canvas state to Google Sheets."""
     return "syncCanvasToSheets()"
 
+# API Endpoint actions
+def setApiEndpointMethod(itemId: Annotated[str, "API Endpoint id."], method: Annotated[str, "HTTP method (GET, POST, PUT, DELETE, PATCH)."]) -> str:
+    return f"setApiEndpointMethod({itemId}, {method})"
+
+def setApiEndpointUrl(itemId: Annotated[str, "API Endpoint id."], url: Annotated[str, "API endpoint URL."]) -> str:
+    return f"setApiEndpointUrl({itemId}, {url})"
+
+def addApiEndpointHeader(itemId: Annotated[str, "API Endpoint id."], key: Annotated[str, "Header name."], value: Annotated[str, "Header value."]) -> str:
+    return f"addApiEndpointHeader({itemId}, {key}, {value})"
+
+def updateApiEndpointHeader(itemId: Annotated[str, "API Endpoint id."], headerId: Annotated[str, "Header id."], key: Annotated[Optional[str], "New header name."] = None, value: Annotated[Optional[str], "New header value."] = None) -> str:
+    return f"updateApiEndpointHeader({itemId}, {headerId}, {key}, {value})"
+
+def removeApiEndpointHeader(itemId: Annotated[str, "API Endpoint id."], headerId: Annotated[str, "Header id."]) -> str:
+    return f"removeApiEndpointHeader({itemId}, {headerId})"
+
+def setApiEndpointAuth(itemId: Annotated[str, "API Endpoint id."], authType: Annotated[str, "Auth type (none, bearer, basic, api-key)."], config: Annotated[Optional[str], "Auth configuration JSON."] = None) -> str:
+    return f"setApiEndpointAuth({itemId}, {authType}, {config})"
+
+def testApiEndpoint(itemId: Annotated[str, "API Endpoint id."]) -> str:
+    """Test an API endpoint and update its status and response."""
+    return f"testApiEndpoint({itemId})"
+
+# API Flow actions
+def addApiFlowStep(itemId: Annotated[str, "API Flow id."], endpointId: Annotated[str, "Reference to API Endpoint card."], condition: Annotated[Optional[str], "Conditional logic."] = None) -> str:
+    return f"addApiFlowStep({itemId}, {endpointId}, {condition})"
+
+def updateApiFlowStep(itemId: Annotated[str, "API Flow id."], stepId: Annotated[str, "Step id."], endpointId: Annotated[Optional[str], "Reference to API Endpoint card."] = None, condition: Annotated[Optional[str], "Conditional logic."] = None) -> str:
+    return f"updateApiFlowStep({itemId}, {stepId}, {endpointId}, {condition})"
+
+def removeApiFlowStep(itemId: Annotated[str, "API Flow id."], stepId: Annotated[str, "Step id."]) -> str:
+    return f"removeApiFlowStep({itemId}, {stepId})"
+
+def runApiFlow(itemId: Annotated[str, "API Flow id."]) -> str:
+    """Execute an API flow with all its steps."""
+    return f"runApiFlow({itemId})"
+
+# Mock Server actions
+def addMockRoute(itemId: Annotated[str, "Mock Server id."], path: Annotated[str, "Route path."], method: Annotated[str, "HTTP method."], statusCode: Annotated[int, "Response status code."], responseBody: Annotated[str, "Response body."]) -> str:
+    return f"addMockRoute({itemId}, {path}, {method}, {statusCode}, {responseBody})"
+
+def updateMockRoute(itemId: Annotated[str, "Mock Server id."], routeId: Annotated[str, "Route id."], path: Annotated[Optional[str], "Route path."] = None, method: Annotated[Optional[str], "HTTP method."] = None, statusCode: Annotated[Optional[int], "Response status code."] = None, responseBody: Annotated[Optional[str], "Response body."] = None) -> str:
+    return f"updateMockRoute({itemId}, {routeId}, {path}, {method}, {statusCode}, {responseBody})"
+
+def removeMockRoute(itemId: Annotated[str, "Mock Server id."], routeId: Annotated[str, "Route id."]) -> str:
+    return f"removeMockRoute({itemId}, {routeId})"
+
+def startMockServer(itemId: Annotated[str, "Mock Server id."]) -> str:
+    """Start the mock server."""
+    return f"startMockServer({itemId})"
+
+def stopMockServer(itemId: Annotated[str, "Mock Server id."]) -> str:
+    """Stop the mock server."""
+    return f"stopMockServer({itemId})"
+
+# Test Suite actions
+def addTestCase(itemId: Annotated[str, "Test Suite id."], name: Annotated[str, "Test case name."], endpointId: Annotated[str, "Reference to API Endpoint card."]) -> str:
+    return f"addTestCase({itemId}, {name}, {endpointId})"
+
+def updateTestCase(itemId: Annotated[str, "Test Suite id."], testCaseId: Annotated[str, "Test case id."], name: Annotated[Optional[str], "Test case name."] = None, endpointId: Annotated[Optional[str], "Reference to API Endpoint card."] = None) -> str:
+    return f"updateTestCase({itemId}, {testCaseId}, {name}, {endpointId})"
+
+def removeTestCase(itemId: Annotated[str, "Test Suite id."], testCaseId: Annotated[str, "Test case id."]) -> str:
+    return f"removeTestCase({itemId}, {testCaseId})"
+
+def runTestSuite(itemId: Annotated[str, "Test Suite id."]) -> str:
+    """Run all test cases in a test suite."""
+    return f"runTestSuite({itemId})"
+
+def runSingleTest(itemId: Annotated[str, "Test Suite id."], testCaseId: Annotated[str, "Test case id."]) -> str:
+    """Run a single test case."""
+    return f"runSingleTest({itemId}, {testCaseId})"
+
 
 FIELD_SCHEMA = (
     "FIELD SCHEMA (authoritative):\n"
@@ -223,6 +296,37 @@ FIELD_SCHEMA = (
     "  - field1: string (textarea; represents description)\n"
     "- chart.data:\n"
     "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''\n"
+    "- api-endpoint.data:\n"
+    "  - method: string (GET, POST, PUT, DELETE, PATCH)\n"
+    "  - url: string (API endpoint URL)\n"
+    "  - headers: HttpHeader[] where HttpHeader={id: string, key: string, value: string, enabled: boolean}\n"
+    "  - authType: string (none, bearer, basic, api-key)\n"
+    "  - authConfig: object (flexible auth configuration)\n"
+    "  - requestSchema: string (JSON schema or example)\n"
+    "  - responseSchema: string (JSON schema or example)\n"
+    "  - description: string\n"
+    "  - status: string (idle, pending, success, error)\n"
+    "  - lastResponse: string (last API response)\n"
+    "  - lastError: string (last error message)\n"
+    "- api-flow.data:\n"
+    "  - steps: FlowStep[] where FlowStep={id: string, endpointId: string, condition?: string, dataMapping: object, delay?: number}\n"
+    "  - description: string\n"
+    "  - status: string (idle, running, completed, error)\n"
+    "  - currentStep: number (current executing step)\n"
+    "  - results: object (execution results)\n"
+    "- mock-server.data:\n"
+    "  - routes: MockRoute[] where MockRoute={id: string, path: string, method: string, statusCode: number, responseBody: string, delay?: number, enabled: boolean}\n"
+    "  - baseUrl: string (mock server base URL)\n"
+    "  - description: string\n"
+    "  - isRunning: boolean (server status)\n"
+    "- test-suite.data:\n"
+    "  - testCases: TestCase[] where TestCase={id: string, name: string, endpointId: string, assertions: TestAssertion[], status: string, lastRun?: string, duration?: number}\n"
+    "  - description: string\n"
+    "  - coverage: number (test coverage percentage)\n"
+    "  - totalTests: number\n"
+    "  - passedTests: number\n"
+    "  - failedTests: number\n"
+    "  - lastRun: string (ISO timestamp)\n"
 )
 
 SYSTEM_PROMPT = (
@@ -230,7 +334,7 @@ SYSTEM_PROMPT = (
     + FIELD_SCHEMA +
     "\nMUTATION/TOOL POLICY:\n"
     "- When you claim to create/update/delete, you MUST call the corresponding tool(s) (frontend or backend).\n"
-    "- To create new cards, call the frontend tool `createItem` with `type` in {project, entity, note, chart} and optional `name`.\n"
+    "- To create new cards, call the frontend tool `createItem` with `type` in {project, entity, note, chart, api-endpoint, api-flow, mock-server, test-suite} and optional `name`.\n"
     "- After tools run, rely on the latest shared state (ground truth) when replying.\n"
     "- To set a card's subtitle (never the data fields): use setItemSubtitleOrDescription.\n\n"
     "DESCRIPTION MAPPING:\n"
@@ -313,6 +417,28 @@ agentic_chat_router = get_ag_ui_workflow_router(
         removeChartField1,
         openSheetSelectionModal,
         setSyncSheetId,
+        # API Integration tools
+        setApiEndpointMethod,
+        setApiEndpointUrl,
+        addApiEndpointHeader,
+        updateApiEndpointHeader,
+        removeApiEndpointHeader,
+        setApiEndpointAuth,
+        testApiEndpoint,
+        addApiFlowStep,
+        updateApiFlowStep,
+        removeApiFlowStep,
+        runApiFlow,
+        addMockRoute,
+        updateMockRoute,
+        removeMockRoute,
+        startMockServer,
+        stopMockServer,
+        addTestCase,
+        updateTestCase,
+        removeTestCase,
+        runTestSuite,
+        runSingleTest,
     ],
     backend_tools=_backend_tools,
     system_prompt=SYSTEM_PROMPT,

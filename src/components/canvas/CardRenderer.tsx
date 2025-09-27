@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { X, Plus } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Progress } from "@/components/ui/progress";
-import type { ChartData, EntityData, Item, ItemData, NoteData, ProjectData } from "@/lib/canvas/types";
+import type { AutomationRuleData, BusinessMetricData, ChartData, EntityData, Item, ItemData, NoteData, ProjectData } from "@/lib/canvas/types";
 import { chartAddField1Metric, chartRemoveField1Metric, chartSetField1Label, chartSetField1Value, projectAddField4Item, projectRemoveField4Item, projectSetField4ItemDone, projectSetField4ItemText } from "@/lib/canvas/updates";
 
 export function CardRenderer(props: {
@@ -179,6 +179,156 @@ export function CardRenderer(props: {
               </div>
             ))}
           </div>
+        </div>
+        <div className="mt-4 contents @xs:grid gap-3 md:grid-cols-2">
+          <div className="@max-xs:mb-3">
+            <label className="mb-1 block text-xs font-medium text-gray-500">Field 5 (ROI Calculation)</label>
+            <input
+              value={d.field5 ?? ""}
+              onChange={(e) => set({ field5: e.target.value })}
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+              placeholder="Actual vs. projected ROI"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Field 6 (Resource Allocation)</label>
+            <input
+              value={d.field6 ?? ""}
+              onChange={(e) => set({ field6: e.target.value })}
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+              placeholder="Time, money, tools"
+            />
+          </div>
+        </div>
+        <div className="mt-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 7 (Success Metrics & KPIs)</label>
+          <TextareaAutosize
+            value={d.field7 ?? ""}
+            onChange={(e) => set({ field7: e.target.value })}
+            placeholder="Success metrics and KPI tracking..."
+            className="w-full resize-none rounded-md border bg-white/60 p-3 text-sm leading-6 outline-none placeholder:text-gray-400 transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            minRows={2}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (item.type === "business-metric") {
+    const d = item.data as BusinessMetricData;
+    const set = (partial: Partial<BusinessMetricData>) => onUpdateData((prev) => ({ ...(prev as BusinessMetricData), ...partial }));
+    return (
+      <div className="mt-4 @container">
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (Metric Name)</label>
+          <input
+            value={d.field1}
+            onChange={(e) => set({ field1: e.target.value })}
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            placeholder="Revenue, CAC, LTV, Conversion Rate, etc."
+          />
+        </div>
+        <div className="contents @xs:grid gap-3 md:grid-cols-2">
+          <div className="@max-xs:mb-3">
+            <label className="mb-1 block text-xs font-medium text-gray-500">Field 2 (Current Value)</label>
+            <input
+              value={d.field2}
+              onChange={(e) => set({ field2: e.target.value })}
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+              placeholder="Current value with trend"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Field 3 (Target Value)</label>
+            <input
+              value={d.field3}
+              onChange={(e) => set({ field3: e.target.value })}
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+              placeholder="Target/goal value"
+            />
+          </div>
+        </div>
+        <div className="mt-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 4 (Data Sources)</label>
+          <input
+            value={d.field4}
+            onChange={(e) => set({ field4: e.target.value })}
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            placeholder="Connected platforms feeding this metric"
+          />
+        </div>
+        <div className="mt-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 5 (AI Insights)</label>
+          <TextareaAutosize
+            value={d.field5}
+            onChange={(e) => set({ field5: e.target.value })}
+            placeholder="Pattern analysis and recommendations..."
+            className="w-full resize-none rounded-md border bg-white/60 p-3 text-sm leading-6 outline-none placeholder:text-gray-400 transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            minRows={2}
+          />
+        </div>
+        <div className="mt-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 6 (Automated Actions)</label>
+          <TextareaAutosize
+            value={d.field6}
+            onChange={(e) => set({ field6: e.target.value })}
+            placeholder="Actions triggered based on thresholds..."
+            className="w-full resize-none rounded-md border bg-white/60 p-3 text-sm leading-6 outline-none placeholder:text-gray-400 transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            minRows={2}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (item.type === "automation-rule") {
+    const d = item.data as AutomationRuleData;
+    const set = (partial: Partial<AutomationRuleData>) => onUpdateData((prev) => ({ ...(prev as AutomationRuleData), ...partial }));
+    return (
+      <div className="mt-4 @container">
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (Rule Name & Triggers)</label>
+          <TextareaAutosize
+            value={d.field1}
+            onChange={(e) => set({ field1: e.target.value })}
+            placeholder="Rule name and trigger conditions..."
+            className="w-full resize-none rounded-md border bg-white/60 p-3 text-sm leading-6 outline-none placeholder:text-gray-400 transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            minRows={2}
+          />
+        </div>
+        <div className="contents @xs:grid gap-3 md:grid-cols-2">
+          <div className="@max-xs:mb-3">
+            <label className="mb-1 block text-xs font-medium text-gray-500">Field 2 (Status)</label>
+            <select
+              value={d.field2}
+              onChange={(e) => set({ field2: e.target.value })}
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent invalid:text-gray-400"
+            >
+              <option value="">Select status...</option>
+              <option value="Active">Active</option>
+              <option value="Paused">Paused</option>
+              <option value="Testing">Testing</option>
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Field 4 (Performance Metrics)</label>
+            <input
+              value={d.field4}
+              onChange={(e) => set({ field4: e.target.value })}
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+              placeholder="Success rate and metrics"
+            />
+          </div>
+        </div>
+        <div className="mt-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 3 (Actions to Execute)</label>
+          <TextareaAutosize
+            value={d.field3}
+            onChange={(e) => set({ field3: e.target.value })}
+            placeholder="Email campaigns, inventory orders, etc..."
+            className="w-full resize-none rounded-md border bg-white/60 p-3 text-sm leading-6 outline-none placeholder:text-gray-400 transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            minRows={3}
+          />
         </div>
       </div>
     );

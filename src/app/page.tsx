@@ -12,7 +12,7 @@ import ShikiHighlighter from "react-shiki/web";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import { EmptyState } from "@/components/empty-state";
 import { cn, getContentArg } from "@/lib/utils";
-import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType } from "@/lib/canvas/types";
+import type { AgentState, AutomationRuleData, BusinessMetricData, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType } from "@/lib/canvas/types";
 import { initialState, isNonEmptyAgentState } from "@/lib/canvas/state";
 import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric } from "@/lib/canvas/updates";
 import useMediaQuery from "@/hooks/use-media-query";
@@ -238,6 +238,8 @@ export default function CopilotKitPage() {
         { id: "entity", label: "Entity" },
         { id: "note", label: "Note" },
         { id: "chart", label: "Chart" },
+        { id: "business-metric", label: "Business Metric" },
+        { id: "automation-rule", label: "Automation Rule" },
       ];
       let selected: CardType | "" = "";
       return (
@@ -330,6 +332,9 @@ export default function CopilotKitPage() {
           field3: "",
           field4: [],
           field4_id: 0,
+          field5: "",
+          field6: "",
+          field7: "",
         } as ProjectData;
       case "entity":
         return {
@@ -342,6 +347,22 @@ export default function CopilotKitPage() {
         return { field1: "" } as NoteData;
       case "chart":
         return { field1: [], field1_id: 0 } as ChartData;
+      case "business-metric":
+        return {
+          field1: "",
+          field2: "",
+          field3: "",
+          field4: "",
+          field5: "",
+          field6: "",
+        } as BusinessMetricData;
+      case "automation-rule":
+        return {
+          field1: "",
+          field2: "",
+          field3: "",
+          field4: "",
+        } as AutomationRuleData;
       default:
         return { content: "" } as NoteData;
     }

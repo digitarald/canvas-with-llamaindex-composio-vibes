@@ -10,7 +10,7 @@ export interface LinkItem {
   url: string;
 }
 
-export type CardType = "project" | "entity" | "note" | "chart";
+export type CardType = "project" | "entity" | "note" | "chart" | "business-metric" | "automation-rule";
 
 export interface ProjectData {
   field1: string; // text
@@ -18,6 +18,9 @@ export interface ProjectData {
   field3: string; // date
   field4: ChecklistItem[]; // checklist
   field4_id: number; // id counter
+  field5?: string; // ROI calculation (actual vs. projected)
+  field6?: string; // Resource allocation (time, money, tools)
+  field7?: string; // Success metrics and KPI tracking
 }
 
 export interface EntityData {
@@ -42,7 +45,23 @@ export interface ChartData {
   field1_id: number; // id counter
 }
 
-export type ItemData = ProjectData | EntityData | NoteData | ChartData;
+export interface BusinessMetricData {
+  field1: string; // Metric name (Revenue, CAC, LTV, Conversion Rate, etc.)
+  field2: string; // Current value with trend indicators
+  field3: string; // Target/goal value
+  field4: string; // Data sources (connected platforms feeding this metric)
+  field5: string; // AI insights (pattern analysis and recommendations)
+  field6: string; // Automated actions (triggered based on thresholds)
+}
+
+export interface AutomationRuleData {
+  field1: string; // Rule name and trigger conditions
+  field2: string; // Status (Active, Paused, Testing)
+  field3: string; // Actions to execute (email campaigns, inventory orders, etc.)
+  field4: string; // Success rate and performance metrics
+}
+
+export type ItemData = ProjectData | EntityData | NoteData | ChartData | BusinessMetricData | AutomationRuleData;
 
 export interface Item {
   id: string;

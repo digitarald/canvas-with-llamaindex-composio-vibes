@@ -178,7 +178,7 @@ export class TimeTrackingIntegration {
     // Placeholder - would integrate with time tracking tools
     return teamMembers.map(member => ({
       memberId: member,
-      name: member.replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      name: member.replace(/\./g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
       role: ["Developer", "Designer", "QA", "DevOps"][Math.floor(Math.random() * 4)],
       currentCapacity: Math.floor(Math.random() * 40) + 60,
       weeklyCommits: Math.floor(Math.random() * 20) + 5,

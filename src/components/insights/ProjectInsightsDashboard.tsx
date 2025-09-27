@@ -3,7 +3,7 @@
 import React from 'react';
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
-import { AlertTriangle, TrendingUp, TrendingDown, Users, Calendar, Activity } from "lucide-react";
+import { AlertTriangle, TrendingUp, TrendingDown, Users, Calendar } from "lucide-react";
 import type { AgentState, ProjectData, SprintData } from "@/lib/canvas/types";
 import { calculateProjectHealthScore, calculateSprintHealthScore, generatePortfolioInsights } from "@/lib/ai-insights";
 

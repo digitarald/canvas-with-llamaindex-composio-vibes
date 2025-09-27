@@ -156,7 +156,8 @@ export function detectProjectRisks(project: ProjectData, allProjects?: ProjectDa
   }
   
   // Scope risk
-  if (!project.field1.trim() || project.field1.length < 20) {
+  const MIN_DESCRIPTION_LENGTH = 20;
+  if (!project.field1.trim() || project.field1.length < MIN_DESCRIPTION_LENGTH) {
     risks.push({
       id: String(riskId++).padStart(3, "0"),
       type: "Scope",

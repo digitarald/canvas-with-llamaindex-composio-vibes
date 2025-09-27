@@ -12,9 +12,9 @@ import ShikiHighlighter from "react-shiki/web";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import { EmptyState } from "@/components/empty-state";
 import { cn, getContentArg } from "@/lib/utils";
-import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType } from "@/lib/canvas/types";
+import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, DealData, CardType } from "@/lib/canvas/types";
 import { initialState, isNonEmptyAgentState } from "@/lib/canvas/state";
-import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric } from "@/lib/canvas/updates";
+import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric, dealAddField4Touchpoint, dealSetField4TouchpointType, dealSetField4TouchpointDescription, dealRemoveField4Touchpoint, dealAddField6Action, dealSetField6ActionText, dealSetField6ActionPriority, dealRemoveField6Action, dealAddField7Competitor, dealSetField7CompetitorName, dealSetField7CompetitorThreat, dealRemoveField7Competitor } from "@/lib/canvas/updates";
 import useMediaQuery from "@/hooks/use-media-query";
 import ItemHeader from "@/components/canvas/ItemHeader";
 import NewItemMenu from "@/components/canvas/NewItemMenu";
@@ -342,6 +342,19 @@ export default function CopilotKitPage() {
         return { field1: "" } as NoteData;
       case "chart":
         return { field1: [], field1_id: 0 } as ChartData;
+      case "deal":
+        return {
+          field1: "",
+          field2: "",
+          field3: "",
+          field4: [],
+          field4_id: 0,
+          field5: "",
+          field6: [],
+          field6_id: 0,
+          field7: [],
+          field7_id: 0,
+        } as DealData;
       default:
         return { content: "" } as NoteData;
     }
@@ -760,6 +773,317 @@ export default function CopilotKitPage() {
     },
   });
 
+  // Enhanced entity fields
+  useCopilotAction({
+    name: "setEntityField4",
+    description: "Update entity field4 (engagement score 0-100).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "New value for field4 (engagement score)." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (entity)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const e = prev as EntityData;
+        const numValue = value === "" ? "" : Number(value);
+        return { ...e, field4: numValue } as EntityData;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setEntityField5",
+    description: "Update entity field5 (decision maker influence).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "New value for field5 (decision maker influence)." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (entity)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const e = prev as EntityData;
+        return { ...e, field5: value } as EntityData;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setEntityField6",
+    description: "Update entity field6 (communication preferences).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "New value for field6 (communication preferences)." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (entity)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const e = prev as EntityData;
+        return { ...e, field6: value } as EntityData;
+      });
+    },
+  });
+
+  // Deal field actions
+  useCopilotAction({
+    name: "setDealField1",
+    description: "Update deal field1 (deal name/company).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "New value for field1 (deal name/company)." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (deal)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const d = prev as DealData;
+        return { ...d, field1: value } as DealData;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setDealField2",
+    description: "Update deal field2 (stage).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "New value for field2 (stage)." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (deal)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const d = prev as DealData;
+        return { ...d, field2: value } as DealData;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setDealField3",
+    description: "Update deal field3 (close date).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "New value for field3 (close date)." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (deal)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const d = prev as DealData;
+        return { ...d, field3: value } as DealData;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setDealField5",
+    description: "Update deal field5 (AI confidence score 0-100).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "New value for field5 (AI confidence score)." },
+      { name: "itemId", type: "string", required: true, description: "Target item id (deal)." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const d = prev as DealData;
+        const numValue = value === "" ? "" : Number(value);
+        return { ...d, field5: numValue } as DealData;
+      });
+    },
+  });
+
+  // Deal touchpoint actions
+  useCopilotAction({
+    name: "addDealField4Touchpoint",
+    description: "Add a touchpoint to deal field4 (activities).",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id (deal)." },
+      { name: "type", type: "string", required: true, description: "Touchpoint type (email, call, meeting, etc.)." },
+      { name: "description", type: "string", required: false, description: "Touchpoint description (optional)." },
+    ],
+    handler: ({ itemId, type, description }: { itemId: string; type: string; description?: string }) => {
+      updateItemData(itemId, (prev) => {
+        const { next } = dealAddField4Touchpoint(prev as DealData, type, description);
+        return next;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setDealField4TouchpointType",
+    description: "Update touchpoint type in deal field4.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id (deal)." },
+      { name: "touchpointId", type: "string", required: true, description: "Touchpoint id." },
+      { name: "type", type: "string", required: true, description: "New touchpoint type." },
+    ],
+    handler: ({ itemId, touchpointId, type }: { itemId: string; touchpointId: string; type: string }) => {
+      updateItemData(itemId, (prev) => {
+        return dealSetField4TouchpointType(prev as DealData, touchpointId, type);
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setDealField4TouchpointDescription",
+    description: "Update touchpoint description in deal field4.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id (deal)." },
+      { name: "touchpointId", type: "string", required: true, description: "Touchpoint id." },
+      { name: "description", type: "string", required: true, description: "New touchpoint description." },
+    ],
+    handler: ({ itemId, touchpointId, description }: { itemId: string; touchpointId: string; description: string }) => {
+      updateItemData(itemId, (prev) => {
+        return dealSetField4TouchpointDescription(prev as DealData, touchpointId, description);
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "removeDealField4Touchpoint",
+    description: "Remove a touchpoint from deal field4.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id (deal)." },
+      { name: "touchpointId", type: "string", required: true, description: "Touchpoint id to remove." },
+    ],
+    handler: ({ itemId, touchpointId }: { itemId: string; touchpointId: string }) => {
+      updateItemData(itemId, (prev) => {
+        return dealRemoveField4Touchpoint(prev as DealData, touchpointId);
+      });
+    },
+  });
+
+  // Deal action items
+  useCopilotAction({
+    name: "addDealField6Action",
+    description: "Add an action item to deal field6 (next best actions).",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id (deal)." },
+      { name: "action", type: "string", required: true, description: "Action description." },
+      { name: "priority", type: "string", required: false, description: "Action priority (high/medium/low, optional)." },
+    ],
+    handler: ({ itemId, action, priority }: { itemId: string; action: string; priority?: string }) => {
+      updateItemData(itemId, (prev) => {
+        const { next } = dealAddField6Action(prev as DealData, action, priority);
+        return next;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setDealField6ActionText",
+    description: "Update action text in deal field6.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id (deal)." },
+      { name: "actionId", type: "string", required: true, description: "Action id." },
+      { name: "action", type: "string", required: true, description: "New action text." },
+    ],
+    handler: ({ itemId, actionId, action }: { itemId: string; actionId: string; action: string }) => {
+      updateItemData(itemId, (prev) => {
+        return dealSetField6ActionText(prev as DealData, actionId, action);
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setDealField6ActionPriority",
+    description: "Update action priority in deal field6.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id (deal)." },
+      { name: "actionId", type: "string", required: true, description: "Action id." },
+      { name: "priority", type: "string", required: true, description: "New action priority (high/medium/low)." },
+    ],
+    handler: ({ itemId, actionId, priority }: { itemId: string; actionId: string; priority: string }) => {
+      updateItemData(itemId, (prev) => {
+        return dealSetField6ActionPriority(prev as DealData, actionId, priority as "high" | "medium" | "low");
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "removeDealField6Action",
+    description: "Remove an action item from deal field6.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id (deal)." },
+      { name: "actionId", type: "string", required: true, description: "Action id to remove." },
+    ],
+    handler: ({ itemId, actionId }: { itemId: string; actionId: string }) => {
+      updateItemData(itemId, (prev) => {
+        return dealRemoveField6Action(prev as DealData, actionId);
+      });
+    },
+  });
+
+  // Deal competitor actions
+  useCopilotAction({
+    name: "addDealField7Competitor",
+    description: "Add a competitor to deal field7 (competitive intelligence).",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id (deal)." },
+      { name: "name", type: "string", required: true, description: "Competitor name." },
+      { name: "threat", type: "string", required: false, description: "Threat level (high/medium/low, optional)." },
+    ],
+    handler: ({ itemId, name, threat }: { itemId: string; name: string; threat?: string }) => {
+      updateItemData(itemId, (prev) => {
+        const { next } = dealAddField7Competitor(prev as DealData, name, threat);
+        return next;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setDealField7CompetitorName",
+    description: "Update competitor name in deal field7.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id (deal)." },
+      { name: "competitorId", type: "string", required: true, description: "Competitor id." },
+      { name: "name", type: "string", required: true, description: "New competitor name." },
+    ],
+    handler: ({ itemId, competitorId, name }: { itemId: string; competitorId: string; name: string }) => {
+      updateItemData(itemId, (prev) => {
+        return dealSetField7CompetitorName(prev as DealData, competitorId, name);
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setDealField7CompetitorThreat",
+    description: "Update competitor threat level in deal field7.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id (deal)." },
+      { name: "competitorId", type: "string", required: true, description: "Competitor id." },
+      { name: "threat", type: "string", required: true, description: "New threat level (high/medium/low)." },
+    ],
+    handler: ({ itemId, competitorId, threat }: { itemId: string; competitorId: string; threat: string }) => {
+      updateItemData(itemId, (prev) => {
+        return dealSetField7CompetitorThreat(prev as DealData, competitorId, threat as "high" | "medium" | "low");
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "removeDealField7Competitor",
+    description: "Remove a competitor from deal field7.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id (deal)." },
+      { name: "competitorId", type: "string", required: true, description: "Competitor id to remove." },
+    ],
+    handler: ({ itemId, competitorId }: { itemId: string; competitorId: string }) => {
+      updateItemData(itemId, (prev) => {
+        return dealRemoveField7Competitor(prev as DealData, competitorId);
+      });
+    },
+  });
+
   // Chart field1 (metrics) CRUD
   useCopilotAction({
     name: "addChartField1",
@@ -858,7 +1182,7 @@ export default function CopilotKitPage() {
     description: "Create a new item.",
     available: "remote",
     parameters: [
-      { name: "type", type: "string", required: true, description: "One of: project, entity, note, chart." },
+      { name: "type", type: "string", required: true, description: "One of: project, entity, note, chart, deal." },
       { name: "name", type: "string", required: false, description: "Optional item name." },
     ],
     handler: ({ type, name }: { type: string; name?: string }) => {
@@ -1680,7 +2004,7 @@ export default function CopilotKitPage() {
               
               <div className="text-xs text-gray-500 space-y-1">
                 <p>📄 <strong>Create New:</strong> Creates a fresh sheet and opens it in a new tab. Current canvas items will be synced automatically.</p>
-                <p>💡 <strong>Import Existing:</strong> Make sure your sheet is publicly accessible or you're signed in to Composio with the right Google account.</p>
+                <p>💡 <strong>Import Existing:</strong> Make sure your sheet is publicly accessible or you&apos;re signed in to Composio with the right Google account.</p>
                 <p>🤖 The system will analyze your data and create the best card types (projects, entities, notes, or charts).</p>
               </div>
             </div>
@@ -1717,7 +2041,7 @@ export default function CopilotKitPage() {
               
               <p className="text-sm text-gray-600">
                 Importing will completely replace your current canvas data with the sheet contents. 
-                Your current canvas items will be lost unless you've saved them elsewhere.
+                Your current canvas items will be lost unless you&apos;ve saved them elsewhere.
               </p>
               
               <div className="flex gap-2">

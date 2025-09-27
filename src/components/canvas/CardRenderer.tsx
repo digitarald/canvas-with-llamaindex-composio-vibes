@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import { X, Plus } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Progress } from "@/components/ui/progress";
-import type { ChartData, EntityData, Item, ItemData, NoteData, ProjectData } from "@/lib/canvas/types";
-import { chartAddField1Metric, chartRemoveField1Metric, chartSetField1Label, chartSetField1Value, projectAddField4Item, projectRemoveField4Item, projectSetField4ItemDone, projectSetField4ItemText } from "@/lib/canvas/updates";
+import type { ChartData, EntityData, Item, ItemData, NoteData, ProjectData, InvestorData, UpdateData, FeedbackData, MilestoneData } from "@/lib/canvas/types";
+import { chartAddField1Metric, chartRemoveField1Metric, chartSetField1Label, chartSetField1Value, projectAddField4Item, projectRemoveField4Item, projectSetField4ItemDone, projectSetField4ItemText, addChecklistField4Item, setChecklistField4ItemText, setChecklistField4ItemDone, removeChecklistField4Item, addMetricsField4Item, setMetricsField4Label, setMetricsField4Value, removeMetricsField4Item } from "@/lib/canvas/updates";
 
 export function CardRenderer(props: {
   item: Item;
@@ -184,9 +184,10 @@ export function CardRenderer(props: {
     );
   }
 
-  const e = item.data as EntityData;
-  const setEntity = (partial: Partial<EntityData>) => onUpdateData((prev) => ({ ...(prev as EntityData), ...partial }));
-  return (
+  if (item.type === "entity") {
+    const e = item.data as EntityData;
+    const setEntity = (partial: Partial<EntityData>) => onUpdateData((prev) => ({ ...(prev as EntityData), ...partial }));
+    return (
     <div className="mt-4">
       <div className="mb-3">
         <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (Text)</label>
@@ -232,7 +233,382 @@ export function CardRenderer(props: {
         </div>
       </div>
     </div>
-  );
+    );
+  }
+
+  if (item.type === "investor") {
+    const d = item.data as InvestorData;
+    const set = (partial: Partial<InvestorData>) => onUpdateData((prev) => ({ ...(prev as InvestorData), ...partial }));
+    return (
+      <div className="mt-4">
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (Contact Info)</label>
+          <TextareaAutosize
+            value={d.field1}
+            onChange={(e) => set({ field1: e.target.value })}
+            placeholder="Name, email, phone..."
+            className="w-full resize-none rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent placeholder:text-gray-400"
+            minRows={2}
+          />
+        </div>
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 2 (Investment Stage)</label>
+          <select
+            value={d.field2}
+            onChange={(e) => set({ field2: e.target.value })}
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent invalid:text-gray-400"
+          >
+            <option value="">Select stage...</option>
+            {["Pre-Seed", "Seed", "Series A", "Series B+", "Angel"].map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 3 (Communication Preferences)</label>
+          <input
+            value={d.field3}
+            onChange={(e) => set({ field3: e.target.value })}
+            placeholder="Email frequency, preferred contact method..."
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent placeholder:text-gray-400"
+          />
+        </div>
+        <div className="mt-4">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium">Field 4 (Engagement Tracking)</span>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+              onClick={() => onUpdateData((prev) => addChecklistField4Item(prev as InvestorData, "").next)}
+            >
+              <Plus className="size-3.5" />
+              Add new
+            </button>
+          </div>
+          <div className="space-y-2">
+            {(!d.field4 || d.field4.length === 0) && (
+              <div className="grid place-items-center py-1.75 text-xs text-primary/50 font-medium text-pretty">
+                Nothing here yet. Add an engagement to get started.
+              </div>
+            )}
+            {(d.field4 ?? []).map((c, i) => (
+              <div key={c.id} className="flex items-center gap-3">
+                <span className="text-xs font-mono text-muted-foreground/80">{String(c.id ?? String(i + 1)).padStart(3, "0")}</span>
+                <input
+                  className="w-5 h-5 rounded border-2 border-gray-300 transition-colors checked:bg-accent checked:border-accent focus:ring-2 focus:ring-accent/50"
+                  type="checkbox"
+                  checked={c.done}
+                  onChange={(e) => onUpdateData((prev) => setChecklistField4ItemDone(prev as InvestorData, (prev as InvestorData).field4[i].id, e.target.checked))}
+                />
+                <input
+                  value={c.text}
+                  placeholder="Engagement description..."
+                  onChange={(e) => onUpdateData((prev) => setChecklistField4ItemText(prev as InvestorData, (prev as InvestorData).field4[i].id, e.target.value))}
+                  className="flex-1 rounded-md border px-2 py-1 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+                />
+                <button
+                  type="button"
+                  aria-label="Delete engagement"
+                  className="text-gray-400 hover:text-accent"
+                  onClick={() => onUpdateData((prev) => removeChecklistField4Item(prev as InvestorData, (prev as InvestorData).field4[i].id))}
+                >
+                  <X className="h-5 w-5 md:h-6 md:w-6" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (item.type === "update") {
+    const d = item.data as UpdateData;
+    const set = (partial: Partial<UpdateData>) => onUpdateData((prev) => ({ ...(prev as UpdateData), ...partial }));
+    return (
+      <div className="mt-4">
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (Update Content)</label>
+          <TextareaAutosize
+            value={d.field1}
+            onChange={(e) => set({ field1: e.target.value })}
+            placeholder="Update content..."
+            className="min-h-32 w-full resize-none rounded-md border bg-white/60 p-3 text-sm leading-6 outline-none placeholder:text-gray-400 transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            minRows={4}
+          />
+        </div>
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 2 (Update Type)</label>
+          <select
+            value={d.field2}
+            onChange={(e) => set({ field2: e.target.value })}
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent invalid:text-gray-400"
+          >
+            <option value="">Select type...</option>
+            {["Weekly", "Monthly", "Quarterly", "Ad-hoc"].map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 3 (Date)</label>
+          <input
+            type="date"
+            value={d.field3}
+            onChange={(e) => set({ field3: e.target.value })}
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent"
+          />
+        </div>
+        <div className="mt-4">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium">Field 4 (Key Metrics)</span>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+              onClick={() => onUpdateData((prev) => addMetricsField4Item(prev as UpdateData, "", "").next)}
+            >
+              <Plus className="size-3.5" />
+              Add new
+            </button>
+          </div>
+          <div className="space-y-3">
+            {(!d.field4 || d.field4.length === 0) && (
+              <div className="grid place-items-center py-1.75 text-xs text-primary/50 font-medium text-pretty">
+                Nothing here yet. Add a metric to get started.
+              </div>
+            )}
+            {(d.field4 ?? []).map((m, i) => {
+              const number = String(m.id ?? String(i + 1)).padStart(3, "0");
+              return (
+              <div key={m.id ?? `metric-${i}`} className="flex items-center gap-3">
+                <span className="text-xs font-mono text-muted-foreground/80">{number}</span>
+                <input
+                  value={m.label}
+                  placeholder="Metric label"
+                  onChange={(e) => onUpdateData((prev) => setMetricsField4Label(prev as UpdateData, i, e.target.value))}
+                  className="w-25 rounded-md border px-2 py-1 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+                />
+                <div className="flex items-center gap-3 flex-1">
+                  <Progress value={m.value || 0} />
+                </div>
+                <input
+                  className={cn(
+                    "w-10 rounded-md border px-2 py-1 text-xs outline-none appearance-none [-moz-appearance:textfield]",
+                    "[&::-webkit-outer-spin-button]:[-webkit-appearance:none] [&::-webkit-outer-spin-button]:m-0",
+                    "[&::-webkit-inner-spin-button]:[-webkit-appearance:none] [&::-webkit-inner-spin-button]:m-0",
+                    "transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm",
+                    "focus:bg-accent/10 focus:text-accent font-mono",
+                  )}
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={m.value}
+                  onChange={(e) => onUpdateData((prev) => setMetricsField4Value(prev as UpdateData, i, e.target.value === "" ? "" : Number(e.target.value)))}
+                  placeholder="0"
+                />
+                <button
+                  type="button"
+                  aria-label="Delete metric"
+                  className="text-gray-400 hover:text-accent"
+                  onClick={() => onUpdateData((prev) => removeMetricsField4Item(prev as UpdateData, i))}
+                >
+                  <X className="h-5 w-5 md:h-6 md:w-6" />
+                </button>
+              </div>
+            );})}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (item.type === "feedback") {
+    const d = item.data as FeedbackData;
+    const set = (partial: Partial<FeedbackData>) => onUpdateData((prev) => ({ ...(prev as FeedbackData), ...partial }));
+    return (
+      <div className="mt-4">
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (Feedback Content)</label>
+          <TextareaAutosize
+            value={d.field1}
+            onChange={(e) => set({ field1: e.target.value })}
+            placeholder="Feedback content..."
+            className="min-h-32 w-full resize-none rounded-md border bg-white/60 p-3 text-sm leading-6 outline-none placeholder:text-gray-400 transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            minRows={4}
+          />
+        </div>
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 2 (Priority)</label>
+          <select
+            value={d.field2}
+            onChange={(e) => set({ field2: e.target.value })}
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent invalid:text-gray-400"
+          >
+            <option value="">Select priority...</option>
+            {["High", "Medium", "Low"].map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 3 (Deadline)</label>
+          <input
+            type="date"
+            value={d.field3}
+            onChange={(e) => set({ field3: e.target.value })}
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent"
+          />
+        </div>
+        <div className="mt-4">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium">Field 4 (Action Items)</span>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+              onClick={() => onUpdateData((prev) => addChecklistField4Item(prev as FeedbackData, "").next)}
+            >
+              <Plus className="size-3.5" />
+              Add new
+            </button>
+          </div>
+          <div className="space-y-2">
+            {(!d.field4 || d.field4.length === 0) && (
+              <div className="grid place-items-center py-1.75 text-xs text-primary/50 font-medium text-pretty">
+                Nothing here yet. Add an action item to get started.
+              </div>
+            )}
+            {(d.field4 ?? []).map((c, i) => (
+              <div key={c.id} className="flex items-center gap-3">
+                <span className="text-xs font-mono text-muted-foreground/80">{String(c.id ?? String(i + 1)).padStart(3, "0")}</span>
+                <input
+                  className="w-5 h-5 rounded border-2 border-gray-300 transition-colors checked:bg-accent checked:border-accent focus:ring-2 focus:ring-accent/50"
+                  type="checkbox"
+                  checked={c.done}
+                  onChange={(e) => onUpdateData((prev) => setChecklistField4ItemDone(prev as FeedbackData, (prev as FeedbackData).field4[i].id, e.target.checked))}
+                />
+                <input
+                  value={c.text}
+                  placeholder="Action item..."
+                  onChange={(e) => onUpdateData((prev) => setChecklistField4ItemText(prev as FeedbackData, (prev as FeedbackData).field4[i].id, e.target.value))}
+                  className="flex-1 rounded-md border px-2 py-1 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+                />
+                <button
+                  type="button"
+                  aria-label="Delete action item"
+                  className="text-gray-400 hover:text-accent"
+                  onClick={() => onUpdateData((prev) => removeChecklistField4Item(prev as FeedbackData, (prev as FeedbackData).field4[i].id))}
+                >
+                  <X className="h-5 w-5 md:h-6 md:w-6" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (item.type === "milestone") {
+    const d = item.data as MilestoneData;
+    const set = (partial: Partial<MilestoneData>) => onUpdateData((prev) => ({ ...(prev as MilestoneData), ...partial }));
+    return (
+      <div className="mt-4">
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (Description)</label>
+          <TextareaAutosize
+            value={d.field1}
+            onChange={(e) => set({ field1: e.target.value })}
+            placeholder="Milestone description..."
+            className="w-full resize-none rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent placeholder:text-gray-400"
+            minRows={2}
+          />
+        </div>
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 2 (Milestone Type)</label>
+          <select
+            value={d.field2}
+            onChange={(e) => set({ field2: e.target.value })}
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent invalid:text-gray-400"
+          >
+            <option value="">Select type...</option>
+            {["Fundraising", "Product", "Revenue", "Team", "Other"].map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 3 (Target Date)</label>
+          <input
+            type="date"
+            value={d.field3}
+            onChange={(e) => set({ field3: e.target.value })}
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent"
+          />
+        </div>
+        <div className="mt-4">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium">Field 4 (Dependencies/Progress)</span>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+              onClick={() => onUpdateData((prev) => addMetricsField4Item(prev as MilestoneData, "", "").next)}
+            >
+              <Plus className="size-3.5" />
+              Add new
+            </button>
+          </div>
+          <div className="space-y-3">
+            {(!d.field4 || d.field4.length === 0) && (
+              <div className="grid place-items-center py-1.75 text-xs text-primary/50 font-medium text-pretty">
+                Nothing here yet. Add a dependency or progress metric to get started.
+              </div>
+            )}
+            {(d.field4 ?? []).map((m, i) => {
+              const number = String(m.id ?? String(i + 1)).padStart(3, "0");
+              return (
+              <div key={m.id ?? `metric-${i}`} className="flex items-center gap-3">
+                <span className="text-xs font-mono text-muted-foreground/80">{number}</span>
+                <input
+                  value={m.label}
+                  placeholder="Dependency/progress label"
+                  onChange={(e) => onUpdateData((prev) => setMetricsField4Label(prev as MilestoneData, i, e.target.value))}
+                  className="w-25 rounded-md border px-2 py-1 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+                />
+                <div className="flex items-center gap-3 flex-1">
+                  <Progress value={m.value || 0} />
+                </div>
+                <input
+                  className={cn(
+                    "w-10 rounded-md border px-2 py-1 text-xs outline-none appearance-none [-moz-appearance:textfield]",
+                    "[&::-webkit-outer-spin-button]:[-webkit-appearance:none] [&::-webkit-outer-spin-button]:m-0",
+                    "[&::-webkit-inner-spin-button]:[-webkit-appearance:none] [&::-webkit-inner-spin-button]:m-0",
+                    "transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm",
+                    "focus:bg-accent/10 focus:text-accent font-mono",
+                  )}
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={m.value}
+                  onChange={(e) => onUpdateData((prev) => setMetricsField4Value(prev as MilestoneData, i, e.target.value === "" ? "" : Number(e.target.value)))}
+                  placeholder="0"
+                />
+                <button
+                  type="button"
+                  aria-label="Delete dependency"
+                  className="text-gray-400 hover:text-accent"
+                  onClick={() => onUpdateData((prev) => removeMetricsField4Item(prev as MilestoneData, i))}
+                >
+                  <X className="h-5 w-5 md:h-6 md:w-6" />
+                </button>
+              </div>
+            );})}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 export default CardRenderer;

@@ -12,9 +12,9 @@ import ShikiHighlighter from "react-shiki/web";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import { EmptyState } from "@/components/empty-state";
 import { cn, getContentArg } from "@/lib/utils";
-import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType } from "@/lib/canvas/types";
+import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, InvestorData, UpdateData, FeedbackData, MilestoneData, CardType } from "@/lib/canvas/types";
 import { initialState, isNonEmptyAgentState } from "@/lib/canvas/state";
-import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric } from "@/lib/canvas/updates";
+import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric, addChecklistField4Item, setChecklistField4ItemText, setChecklistField4ItemDone, removeChecklistField4Item, addMetricsField4Item, setMetricsField4Label, setMetricsField4Value, removeMetricsField4Item } from "@/lib/canvas/updates";
 import useMediaQuery from "@/hooks/use-media-query";
 import ItemHeader from "@/components/canvas/ItemHeader";
 import NewItemMenu from "@/components/canvas/NewItemMenu";
@@ -153,10 +153,30 @@ export default function CopilotKitPage() {
         "  - field1: string (textarea)",
         "- chart.data:",
         "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''",
+        "- investor.data:",
+        "  - field1: string (contact info: name, email, phone)",
+        "  - field2: string (select: 'Pre-Seed' | 'Seed' | 'Series A' | 'Series B+' | 'Angel')",
+        "  - field3: string (communication preferences)",
+        "  - field4: ChecklistItem[] (engagement tracking)",
+        "- update.data:",
+        "  - field1: string (textarea; update content)",
+        "  - field2: string (select: 'Weekly' | 'Monthly' | 'Quarterly' | 'Ad-hoc')",
+        "  - field3: string (date 'YYYY-MM-DD')",
+        "  - field4: Array<{id: string, label: string, value: number | ''}> (key metrics/highlights)",
+        "- feedback.data:",
+        "  - field1: string (textarea; feedback content)",
+        "  - field2: string (select: 'High' | 'Medium' | 'Low')",
+        "  - field3: string (date 'YYYY-MM-DD'; deadline)",
+        "  - field4: ChecklistItem[] (action items)",
+        "- milestone.data:",
+        "  - field1: string (milestone description)",
+        "  - field2: string (select: 'Fundraising' | 'Product' | 'Revenue' | 'Team' | 'Other')",
+        "  - field3: string (date 'YYYY-MM-DD'; target date)",
+        "  - field4: Array<{id: string, label: string, value: number | ''}> (dependencies/progress metrics)",
       ].join("\n");
       const toolUsageHints = [
         "TOOL USAGE HINTS:",
-        "- To create cards, call createItem with { type: 'project' | 'entity' | 'note' | 'chart', name?: string } and use returned id.",
+        "- To create cards, call createItem with { type: 'project' | 'entity' | 'note' | 'chart' | 'investor' | 'update' | 'feedback' | 'milestone', name?: string } and use returned id.",
         "- Prefer calling specific actions: setProjectField1, setProjectField2, setProjectField3, addProjectChecklistItem, setProjectChecklistItem, removeProjectChecklistItem.",
         "- field2 values: 'Option A' | 'Option B' | 'Option C' | '' (empty clears).",
         "- field3 accepts natural dates (e.g., 'tomorrow', '2025-01-30'); it will be normalized to YYYY-MM-DD.",
@@ -238,6 +258,10 @@ export default function CopilotKitPage() {
         { id: "entity", label: "Entity" },
         { id: "note", label: "Note" },
         { id: "chart", label: "Chart" },
+        { id: "investor", label: "Investor" },
+        { id: "update", label: "Update" },
+        { id: "feedback", label: "Feedback" },
+        { id: "milestone", label: "Milestone" },
       ];
       let selected: CardType | "" = "";
       return (
@@ -853,12 +877,583 @@ export default function CopilotKitPage() {
     },
   });
 
+  // Investor actions
+  useCopilotAction({
+    name: "setInvestorField1",
+    description: "Update investor field1 (contact info).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Contact info (name, email, phone)." },
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const pd = prev as InvestorData;
+        return { ...pd, field1: value };
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setInvestorField2",
+    description: "Update investor field2 (investment stage).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "One of: Pre-Seed | Seed | Series A | Series B+ | Angel." },
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const pd = prev as InvestorData;
+        return { ...pd, field2: value };
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setInvestorField3",
+    description: "Update investor field3 (communication preferences).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Communication preferences." },
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const pd = prev as InvestorData;
+        return { ...pd, field3: value };
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "addInvestorField4Item",
+    description: "Add engagement tracking item to investor field4.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+      { name: "text", type: "string", required: false, description: "Engagement text (optional)." },
+    ],
+    handler: ({ itemId, text }: { itemId: string; text?: string }) => {
+      const last = lastChecklistCreationRef.current[itemId];
+      const now = Date.now();
+      if (last && last.text === (text ?? "") && now - last.ts < 5000) {
+        return { checklistItemId: last.id };
+      }
+      updateItemData(itemId, (prev) => {
+        const result = addChecklistField4Item(prev as InvestorData, text ?? "");
+        if (text) {
+          lastChecklistCreationRef.current[itemId] = { text, id: result.createdId, ts: now };
+        }
+        return result.next;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setInvestorField4Item",
+    description: "Update investor field4 engagement item.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+      { name: "checklistItemId", type: "string", required: true, description: "Checklist item id or index (1-based)." },
+      { name: "text", type: "string", required: false, description: "New text." },
+      { name: "done", type: "boolean", required: false, description: "New done status." },
+    ],
+    handler: ({ itemId, checklistItemId, text, done }: { itemId: string; checklistItemId: string; text?: string; done?: boolean }) => {
+      updateItemData(itemId, (prev) => {
+        let pd = prev as InvestorData;
+        const actualId = isNaN(Number(checklistItemId)) ? checklistItemId : (pd.field4 ?? [])[Number(checklistItemId) - 1]?.id;
+        if (!actualId) return pd;
+        if (text !== undefined) pd = setChecklistField4ItemText(pd, actualId, text);
+        if (done !== undefined) pd = setChecklistField4ItemDone(pd, actualId, done);
+        return pd;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "removeInvestorField4Item",
+    description: "Remove investor field4 engagement item.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+      { name: "checklistItemId", type: "string", required: true, description: "Checklist item id." },
+    ],
+    handler: ({ itemId, checklistItemId }: { itemId: string; checklistItemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const pd = prev as InvestorData;
+        return removeChecklistField4Item(pd, checklistItemId);
+      });
+    },
+  });
+
+  // Update actions
+  useCopilotAction({
+    name: "setUpdateField1",
+    description: "Update update field1 (content).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Update content." },
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const pd = prev as UpdateData;
+        return { ...pd, field1: value };
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setUpdateField2",
+    description: "Update update field2 (type).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "One of: Weekly | Monthly | Quarterly | Ad-hoc." },
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const pd = prev as UpdateData;
+        return { ...pd, field2: value };
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setUpdateField3",
+    description: "Update update field3 (date).",
+    available: "remote",
+    parameters: [
+      { name: "date", type: "string", required: true, description: "Date in YYYY-MM-DD format or natural language." },
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+    ],
+    handler: ({ date: rawInput, itemId }: { date: string; itemId: string }) => {
+      const normalizeDate = (dateInput: string | Date): string | null => {
+        if (typeof dateInput === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+          return dateInput;
+        }
+        try {
+          const parsed = new Date(dateInput);
+          const yyyy = parsed.getFullYear();
+          const mm = String(parsed.getUTCMonth() + 1).padStart(2, "0");
+          const dd = String(parsed.getUTCDate()).padStart(2, "0");
+          return `${yyyy}-${mm}-${dd}`;
+        } catch {
+          return null;
+        }
+      };
+      const normalized = normalizeDate(rawInput);
+      if (!normalized) return;
+      updateItemData(itemId, (prev) => {
+        const pd = prev as UpdateData;
+        return { ...pd, field3: normalized };
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "clearUpdateField3",
+    description: "Clear update field3 (date).",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+    ],
+    handler: ({ itemId }: { itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const pd = prev as UpdateData;
+        return { ...pd, field3: "" };
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "addUpdateField4",
+    description: "Add metric to update field4.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+      { name: "label", type: "string", required: false, description: "Metric label (optional)." },
+      { name: "value", type: "number", required: false, description: "Metric value 0-100 (optional)." },
+    ],
+    handler: ({ itemId, label, value }: { itemId: string; label?: string; value?: number }) => {
+      const last = lastMetricCreationRef.current[itemId];
+      const now = Date.now();
+      if (last && last.label === (label ?? "") && last.value === (value ?? "") && now - last.ts < 5000) {
+        return { metricId: last.id };
+      }
+      updateItemData(itemId, (prev) => {
+        const result = addMetricsField4Item(prev as UpdateData, label ?? "", value ?? "");
+        if (label || value !== undefined) {
+          lastMetricCreationRef.current[itemId] = { label: label ?? "", value: value ?? "", id: result.createdId, ts: now };
+        }
+        return result.next;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setUpdateField4Label",
+    description: "Update update field4 metric label.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+      { name: "index", type: "number", required: true, description: "Metric index (0-based)." },
+      { name: "label", type: "string", required: true, description: "New label." },
+    ],
+    handler: ({ itemId, index, label }: { itemId: string; index: number; label: string }) => {
+      updateItemData(itemId, (prev) => setMetricsField4Label(prev as UpdateData, index, label));
+    },
+  });
+
+  useCopilotAction({
+    name: "setUpdateField4Value",
+    description: "Update update field4 metric value.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+      { name: "index", type: "number", required: true, description: "Metric index (0-based)." },
+      { name: "value", type: "number", required: true, description: "New value (0-100)." },
+    ],
+    handler: ({ itemId, index, value }: { itemId: string; index: number; value: number }) => {
+      updateItemData(itemId, (prev) => setMetricsField4Value(prev as UpdateData, index, Math.max(0, Math.min(100, value))));
+    },
+  });
+
+  useCopilotAction({
+    name: "clearUpdateField4Value",
+    description: "Clear update field4 metric value.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+      { name: "index", type: "number", required: true, description: "Metric index (0-based)." },
+    ],
+    handler: ({ itemId, index }: { itemId: string; index: number }) => {
+      updateItemData(itemId, (prev) => setMetricsField4Value(prev as UpdateData, index, ""));
+    },
+  });
+
+  useCopilotAction({
+    name: "removeUpdateField4",
+    description: "Remove update field4 metric.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+      { name: "index", type: "number", required: true, description: "Metric index (0-based)." },
+    ],
+    handler: ({ itemId, index }: { itemId: string; index: number }) => {
+      updateItemData(itemId, (prev) => removeMetricsField4Item(prev as UpdateData, index));
+    },
+  });
+
+  // Feedback actions
+  useCopilotAction({
+    name: "setFeedbackField1",
+    description: "Update feedback field1 (content).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Feedback content." },
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const pd = prev as FeedbackData;
+        return { ...pd, field1: value };
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setFeedbackField2",
+    description: "Update feedback field2 (priority).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "One of: High | Medium | Low." },
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const pd = prev as FeedbackData;
+        return { ...pd, field2: value };
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setFeedbackField3",
+    description: "Update feedback field3 (deadline).",
+    available: "remote",
+    parameters: [
+      { name: "date", type: "string", required: true, description: "Date in YYYY-MM-DD format or natural language." },
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+    ],
+    handler: ({ date: rawInput, itemId }: { date: string; itemId: string }) => {
+      const normalizeDate = (dateInput: string | Date): string | null => {
+        if (typeof dateInput === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+          return dateInput;
+        }
+        try {
+          const parsed = new Date(dateInput);
+          const yyyy = parsed.getFullYear();
+          const mm = String(parsed.getUTCMonth() + 1).padStart(2, "0");
+          const dd = String(parsed.getUTCDate()).padStart(2, "0");
+          return `${yyyy}-${mm}-${dd}`;
+        } catch {
+          return null;
+        }
+      };
+      const normalized = normalizeDate(rawInput);
+      if (!normalized) return;
+      updateItemData(itemId, (prev) => {
+        const pd = prev as FeedbackData;
+        return { ...pd, field3: normalized };
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "clearFeedbackField3",
+    description: "Clear feedback field3 (deadline).",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+    ],
+    handler: ({ itemId }: { itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const pd = prev as FeedbackData;
+        return { ...pd, field3: "" };
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "addFeedbackField4Item",
+    description: "Add action item to feedback field4.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+      { name: "text", type: "string", required: false, description: "Action item text (optional)." },
+    ],
+    handler: ({ itemId, text }: { itemId: string; text?: string }) => {
+      const last = lastChecklistCreationRef.current[itemId];
+      const now = Date.now();
+      if (last && last.text === (text ?? "") && now - last.ts < 5000) {
+        return { checklistItemId: last.id };
+      }
+      updateItemData(itemId, (prev) => {
+        const result = addChecklistField4Item(prev as FeedbackData, text ?? "");
+        if (text) {
+          lastChecklistCreationRef.current[itemId] = { text, id: result.createdId, ts: now };
+        }
+        return result.next;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setFeedbackField4Item",
+    description: "Update feedback field4 action item.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+      { name: "checklistItemId", type: "string", required: true, description: "Checklist item id or index (1-based)." },
+      { name: "text", type: "string", required: false, description: "New text." },
+      { name: "done", type: "boolean", required: false, description: "New done status." },
+    ],
+    handler: ({ itemId, checklistItemId, text, done }: { itemId: string; checklistItemId: string; text?: string; done?: boolean }) => {
+      updateItemData(itemId, (prev) => {
+        let pd = prev as FeedbackData;
+        const actualId = isNaN(Number(checklistItemId)) ? checklistItemId : (pd.field4 ?? [])[Number(checklistItemId) - 1]?.id;
+        if (!actualId) return pd;
+        if (text !== undefined) pd = setChecklistField4ItemText(pd, actualId, text);
+        if (done !== undefined) pd = setChecklistField4ItemDone(pd, actualId, done);
+        return pd;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "removeFeedbackField4Item",
+    description: "Remove feedback field4 action item.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+      { name: "checklistItemId", type: "string", required: true, description: "Checklist item id." },
+    ],
+    handler: ({ itemId, checklistItemId }: { itemId: string; checklistItemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const pd = prev as FeedbackData;
+        return removeChecklistField4Item(pd, checklistItemId);
+      });
+    },
+  });
+
+  // Milestone actions
+  useCopilotAction({
+    name: "setMilestoneField1",
+    description: "Update milestone field1 (description).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "Milestone description." },
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const pd = prev as MilestoneData;
+        return { ...pd, field1: value };
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setMilestoneField2",
+    description: "Update milestone field2 (type).",
+    available: "remote",
+    parameters: [
+      { name: "value", type: "string", required: true, description: "One of: Fundraising | Product | Revenue | Team | Other." },
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+    ],
+    handler: ({ value, itemId }: { value: string; itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const pd = prev as MilestoneData;
+        return { ...pd, field2: value };
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setMilestoneField3",
+    description: "Update milestone field3 (target date).",
+    available: "remote",
+    parameters: [
+      { name: "date", type: "string", required: true, description: "Date in YYYY-MM-DD format or natural language." },
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+    ],
+    handler: ({ date: rawInput, itemId }: { date: string; itemId: string }) => {
+      const normalizeDate = (dateInput: string | Date): string | null => {
+        if (typeof dateInput === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+          return dateInput;
+        }
+        try {
+          const parsed = new Date(dateInput);
+          const yyyy = parsed.getFullYear();
+          const mm = String(parsed.getUTCMonth() + 1).padStart(2, "0");
+          const dd = String(parsed.getUTCDate()).padStart(2, "0");
+          return `${yyyy}-${mm}-${dd}`;
+        } catch {
+          return null;
+        }
+      };
+      const normalized = normalizeDate(rawInput);
+      if (!normalized) return;
+      updateItemData(itemId, (prev) => {
+        const pd = prev as MilestoneData;
+        return { ...pd, field3: normalized };
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "clearMilestoneField3",
+    description: "Clear milestone field3 (target date).",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+    ],
+    handler: ({ itemId }: { itemId: string }) => {
+      updateItemData(itemId, (prev) => {
+        const pd = prev as MilestoneData;
+        return { ...pd, field3: "" };
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "addMilestoneField4",
+    description: "Add dependency/progress metric to milestone field4.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+      { name: "label", type: "string", required: false, description: "Metric label (optional)." },
+      { name: "value", type: "number", required: false, description: "Progress value 0-100 (optional)." },
+    ],
+    handler: ({ itemId, label, value }: { itemId: string; label?: string; value?: number }) => {
+      const last = lastMetricCreationRef.current[itemId];
+      const now = Date.now();
+      if (last && last.label === (label ?? "") && last.value === (value ?? "") && now - last.ts < 5000) {
+        return { metricId: last.id };
+      }
+      updateItemData(itemId, (prev) => {
+        const result = addMetricsField4Item(prev as MilestoneData, label ?? "", value ?? "");
+        if (label || value !== undefined) {
+          lastMetricCreationRef.current[itemId] = { label: label ?? "", value: value ?? "", id: result.createdId, ts: now };
+        }
+        return result.next;
+      });
+    },
+  });
+
+  useCopilotAction({
+    name: "setMilestoneField4Label",
+    description: "Update milestone field4 metric label.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+      { name: "index", type: "number", required: true, description: "Metric index (0-based)." },
+      { name: "label", type: "string", required: true, description: "New label." },
+    ],
+    handler: ({ itemId, index, label }: { itemId: string; index: number; label: string }) => {
+      updateItemData(itemId, (prev) => setMetricsField4Label(prev as MilestoneData, index, label));
+    },
+  });
+
+  useCopilotAction({
+    name: "setMilestoneField4Value",
+    description: "Update milestone field4 metric value.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+      { name: "index", type: "number", required: true, description: "Metric index (0-based)." },
+      { name: "value", type: "number", required: true, description: "New value (0-100)." },
+    ],
+    handler: ({ itemId, index, value }: { itemId: string; index: number; value: number }) => {
+      updateItemData(itemId, (prev) => setMetricsField4Value(prev as MilestoneData, index, Math.max(0, Math.min(100, value))));
+    },
+  });
+
+  useCopilotAction({
+    name: "clearMilestoneField4Value",
+    description: "Clear milestone field4 metric value.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+      { name: "index", type: "number", required: true, description: "Metric index (0-based)." },
+    ],
+    handler: ({ itemId, index }: { itemId: string; index: number }) => {
+      updateItemData(itemId, (prev) => setMetricsField4Value(prev as MilestoneData, index, ""));
+    },
+  });
+
+  useCopilotAction({
+    name: "removeMilestoneField4",
+    description: "Remove milestone field4 metric.",
+    available: "remote",
+    parameters: [
+      { name: "itemId", type: "string", required: true, description: "Target item id." },
+      { name: "index", type: "number", required: true, description: "Metric index (0-based)." },
+    ],
+    handler: ({ itemId, index }: { itemId: string; index: number }) => {
+      updateItemData(itemId, (prev) => removeMetricsField4Item(prev as MilestoneData, index));
+    },
+  });
+
   useCopilotAction({
     name: "createItem",
     description: "Create a new item.",
     available: "remote",
     parameters: [
-      { name: "type", type: "string", required: true, description: "One of: project, entity, note, chart." },
+      { name: "type", type: "string", required: true, description: "One of: project, entity, note, chart, investor, update, feedback, milestone." },
       { name: "name", type: "string", required: false, description: "Optional item name." },
     ],
     handler: ({ type, name }: { type: string; name?: string }) => {
@@ -1109,12 +1704,12 @@ export default function CopilotKitPage() {
               console.log("Successfully synced existing items to new sheet");
               // Set the newly created sheet as the sync target and update title/description
               setState((prev) => ({ 
-                ...prev,
+                ...(prev ?? initialState),
                 globalTitle: result.title || title.trim(),
                 globalDescription: `Connected to Google Sheet: ${result.title || title.trim()}`,
                 syncSheetId: sheetId,
                 syncSheetName: "Sheet1" 
-              }));
+              } as AgentState));
             } else {
               console.warn("Failed to sync existing items to new sheet");
             }

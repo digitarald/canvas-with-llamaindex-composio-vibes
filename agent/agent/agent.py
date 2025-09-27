@@ -71,7 +71,7 @@ def list_sheet_names(sheet_id: Annotated[str, "Google Sheets ID to list availabl
 # --- Frontend tool stubs (names/signatures only; execution happens in the UI) ---
 
 def createItem(
-    type: Annotated[str, "One of: project, entity, note, chart."],
+    type: Annotated[str, "One of: project, entity, note, chart, investor, update, feedback, milestone."],
     name: Annotated[Optional[str], "Optional item name."] = None,
 ) -> str:
     """Create a new canvas item and return its id."""
@@ -190,6 +190,133 @@ def clearChartField1Value(itemId: Annotated[str, "Chart id."], index: Annotated[
 def removeChartField1(itemId: Annotated[str, "Chart id."], index: Annotated[int, "Metric index (0-based)."]) -> str:
     return f"removeChartField1({itemId}, {index})"
 
+# Investor actions
+def setInvestorField1(value: Annotated[str, "New value for investor.data.field1 (contact info)."], itemId: Annotated[str, "Investor id."]) -> str:
+    return f"setInvestorField1({value}, {itemId})"
+
+def setInvestorField2(value: Annotated[str, "New value for investor.data.field2 (investment stage)."], itemId: Annotated[str, "Investor id."]) -> str:
+    return f"setInvestorField2({value}, {itemId})"
+
+def setInvestorField3(value: Annotated[str, "New value for investor.data.field3 (communication preferences)."], itemId: Annotated[str, "Investor id."]) -> str:
+    return f"setInvestorField3({value}, {itemId})"
+
+def addInvestorField4Item(
+    itemId: Annotated[str, "Investor id."],
+    text: Annotated[Optional[str], "Engagement tracking text."] = None,
+) -> str:
+    return f"addInvestorField4Item({itemId}, {text})"
+
+def setInvestorField4Item(
+    itemId: Annotated[str, "Investor id."],
+    checklistItemId: Annotated[str, "Checklist item id or index."],
+    text: Annotated[Optional[str], "New text."] = None,
+    done: Annotated[Optional[bool], "New done status."] = None,
+) -> str:
+    return f"setInvestorField4Item({itemId}, {checklistItemId}, {text}, {done})"
+
+def removeInvestorField4Item(
+    itemId: Annotated[str, "Investor id."],
+    checklistItemId: Annotated[str, "Checklist item id."],
+) -> str:
+    return f"removeInvestorField4Item({itemId}, {checklistItemId})"
+
+# Update actions
+def setUpdateField1(value: Annotated[str, "New value for update.data.field1 (content)."], itemId: Annotated[str, "Update id."]) -> str:
+    return f"setUpdateField1({value}, {itemId})"
+
+def setUpdateField2(value: Annotated[str, "New value for update.data.field2 (type)."], itemId: Annotated[str, "Update id."]) -> str:
+    return f"setUpdateField2({value}, {itemId})"
+
+def setUpdateField3(date: Annotated[str, "Date YYYY-MM-DD for update.data.field3."], itemId: Annotated[str, "Update id."]) -> str:
+    return f"setUpdateField3({date}, {itemId})"
+
+def clearUpdateField3(itemId: Annotated[str, "Update id."]) -> str:
+    return f"clearUpdateField3({itemId})"
+
+def addUpdateField4(
+    itemId: Annotated[str, "Update id."],
+    label: Annotated[Optional[str], "Metric label."] = None,
+    value: Annotated[Optional[float], "Metric value 0..100."] = None,
+) -> str:
+    return f"addUpdateField4({itemId}, {label}, {value})"
+
+def setUpdateField4Label(itemId: Annotated[str, "Update id."], index: Annotated[int, "Metric index (0-based)."], label: Annotated[str, "New metric label."]) -> str:
+    return f"setUpdateField4Label({itemId}, {index}, {label})"
+
+def setUpdateField4Value(itemId: Annotated[str, "Update id."], index: Annotated[int, "Metric index (0-based)."], value: Annotated[float, "Value 0..100."]) -> str:
+    return f"setUpdateField4Value({itemId}, {index}, {value})"
+
+def clearUpdateField4Value(itemId: Annotated[str, "Update id."], index: Annotated[int, "Metric index (0-based)."]) -> str:
+    return f"clearUpdateField4Value({itemId}, {index})"
+
+def removeUpdateField4(itemId: Annotated[str, "Update id."], index: Annotated[int, "Metric index (0-based)."]) -> str:
+    return f"removeUpdateField4({itemId}, {index})"
+
+# Feedback actions
+def setFeedbackField1(value: Annotated[str, "New value for feedback.data.field1 (content)."], itemId: Annotated[str, "Feedback id."]) -> str:
+    return f"setFeedbackField1({value}, {itemId})"
+
+def setFeedbackField2(value: Annotated[str, "New value for feedback.data.field2 (priority)."], itemId: Annotated[str, "Feedback id."]) -> str:
+    return f"setFeedbackField2({value}, {itemId})"
+
+def setFeedbackField3(date: Annotated[str, "Date YYYY-MM-DD for feedback.data.field3 (deadline)."], itemId: Annotated[str, "Feedback id."]) -> str:
+    return f"setFeedbackField3({date}, {itemId})"
+
+def clearFeedbackField3(itemId: Annotated[str, "Feedback id."]) -> str:
+    return f"clearFeedbackField3({itemId})"
+
+def addFeedbackField4Item(
+    itemId: Annotated[str, "Feedback id."],
+    text: Annotated[Optional[str], "Action item text."] = None,
+) -> str:
+    return f"addFeedbackField4Item({itemId}, {text})"
+
+def setFeedbackField4Item(
+    itemId: Annotated[str, "Feedback id."],
+    checklistItemId: Annotated[str, "Checklist item id or index."],
+    text: Annotated[Optional[str], "New text."] = None,
+    done: Annotated[Optional[bool], "New done status."] = None,
+) -> str:
+    return f"setFeedbackField4Item({itemId}, {checklistItemId}, {text}, {done})"
+
+def removeFeedbackField4Item(
+    itemId: Annotated[str, "Feedback id."],
+    checklistItemId: Annotated[str, "Checklist item id."],
+) -> str:
+    return f"removeFeedbackField4Item({itemId}, {checklistItemId})"
+
+# Milestone actions
+def setMilestoneField1(value: Annotated[str, "New value for milestone.data.field1 (description)."], itemId: Annotated[str, "Milestone id."]) -> str:
+    return f"setMilestoneField1({value}, {itemId})"
+
+def setMilestoneField2(value: Annotated[str, "New value for milestone.data.field2 (type)."], itemId: Annotated[str, "Milestone id."]) -> str:
+    return f"setMilestoneField2({value}, {itemId})"
+
+def setMilestoneField3(date: Annotated[str, "Date YYYY-MM-DD for milestone.data.field3 (target date)."], itemId: Annotated[str, "Milestone id."]) -> str:
+    return f"setMilestoneField3({date}, {itemId})"
+
+def clearMilestoneField3(itemId: Annotated[str, "Milestone id."]) -> str:
+    return f"clearMilestoneField3({itemId})"
+
+def addMilestoneField4(
+    itemId: Annotated[str, "Milestone id."],
+    label: Annotated[Optional[str], "Dependency/progress metric label."] = None,
+    value: Annotated[Optional[float], "Progress value 0..100."] = None,
+) -> str:
+    return f"addMilestoneField4({itemId}, {label}, {value})"
+
+def setMilestoneField4Label(itemId: Annotated[str, "Milestone id."], index: Annotated[int, "Metric index (0-based)."], label: Annotated[str, "New metric label."]) -> str:
+    return f"setMilestoneField4Label({itemId}, {index}, {label})"
+
+def setMilestoneField4Value(itemId: Annotated[str, "Milestone id."], index: Annotated[int, "Metric index (0-based)."], value: Annotated[float, "Value 0..100."]) -> str:
+    return f"setMilestoneField4Value({itemId}, {index}, {value})"
+
+def clearMilestoneField4Value(itemId: Annotated[str, "Milestone id."], index: Annotated[int, "Metric index (0-based)."]) -> str:
+    return f"clearMilestoneField4Value({itemId}, {index})"
+
+def removeMilestoneField4(itemId: Annotated[str, "Milestone id."], index: Annotated[int, "Metric index (0-based)."]) -> str:
+    return f"removeMilestoneField4({itemId}, {index})"
+
 def openSheetSelectionModal() -> str:
     """Open modal for selecting Google Sheets."""
     return "openSheetSelectionModal()"
@@ -223,6 +350,26 @@ FIELD_SCHEMA = (
     "  - field1: string (textarea; represents description)\n"
     "- chart.data:\n"
     "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''\n"
+    "- investor.data:\n"
+    "  - field1: string (contact info: name, email, phone)\n"
+    "  - field2: string (select: 'Pre-Seed' | 'Seed' | 'Series A' | 'Series B+' | 'Angel')\n"
+    "  - field3: string (communication preferences)\n"
+    "  - field4: ChecklistItem[] (engagement tracking)\n"
+    "- update.data:\n"
+    "  - field1: string (textarea; update content)\n"
+    "  - field2: string (select: 'Weekly' | 'Monthly' | 'Quarterly' | 'Ad-hoc')\n"
+    "  - field3: string (date 'YYYY-MM-DD')\n"
+    "  - field4: Array<{id: string, label: string, value: number | ''}> (key metrics/highlights)\n"
+    "- feedback.data:\n"
+    "  - field1: string (textarea; feedback content)\n"
+    "  - field2: string (select: 'High' | 'Medium' | 'Low')\n"
+    "  - field3: string (date 'YYYY-MM-DD'; deadline)\n"
+    "  - field4: ChecklistItem[] (action items)\n"
+    "- milestone.data:\n"
+    "  - field1: string (milestone description)\n"
+    "  - field2: string (select: 'Fundraising' | 'Product' | 'Revenue' | 'Team' | 'Other')\n"
+    "  - field3: string (date 'YYYY-MM-DD'; target date)\n"
+    "  - field4: Array<{id: string, label: string, value: number | ''}> (dependencies/progress metrics)\n"
 )
 
 SYSTEM_PROMPT = (

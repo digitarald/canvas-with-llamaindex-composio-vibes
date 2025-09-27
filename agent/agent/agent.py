@@ -157,6 +157,37 @@ def removeProjectChecklistItem(
 ) -> str:
     return f"removeProjectChecklistItem({itemId}, {checklistItemId})"
 
+def setProjectField5(value: Annotated[int, "Health score 0-100 for project.data.field5."], itemId: Annotated[str, "Project id."]) -> str:
+    return f"setProjectField5({value}, {itemId})"
+
+def addProjectField6RiskFactor(
+    itemId: Annotated[str, "Project id."],
+    riskType: Annotated[str, "Type of risk."] = "General",
+    description: Annotated[str, "Risk description."] = "",
+    severity: Annotated[str, "Risk severity: low, medium, high, critical."] = "medium",
+) -> str:
+    return f"addProjectField6RiskFactor({itemId}, {riskType}, {description}, {severity})"
+
+def removeProjectField6RiskFactor(
+    itemId: Annotated[str, "Project id."],
+    riskId: Annotated[str, "Risk factor id."],
+) -> str:
+    return f"removeProjectField6RiskFactor({itemId}, {riskId})"
+
+def addProjectField7SuggestedAction(
+    itemId: Annotated[str, "Project id."],
+    title: Annotated[str, "Action title."] = "",
+    description: Annotated[str, "Action description."] = "",
+    priority: Annotated[str, "Action priority: low, medium, high."] = "medium",
+) -> str:
+    return f"addProjectField7SuggestedAction({itemId}, {title}, {description}, {priority})"
+
+def removeProjectField7SuggestedAction(
+    itemId: Annotated[str, "Project id."],
+    actionId: Annotated[str, "Action id."],
+) -> str:
+    return f"removeProjectField7SuggestedAction({itemId}, {actionId})"
+
 # Entity actions
 def setEntityField1(value: Annotated[str, "New value for entity.data.field1."], itemId: Annotated[str, "Entity id."]) -> str:
     return f"setEntityField1({value}, {itemId})"
@@ -190,6 +221,39 @@ def clearChartField1Value(itemId: Annotated[str, "Chart id."], index: Annotated[
 def removeChartField1(itemId: Annotated[str, "Chart id."], index: Annotated[int, "Metric index (0-based)."]) -> str:
     return f"removeChartField1({itemId}, {index})"
 
+# Sprint actions
+def setSprintField1(value: Annotated[str, "Sprint name for sprint.data.field1."], itemId: Annotated[str, "Sprint id."]) -> str:
+    return f"setSprintField1({value}, {itemId})"
+
+def setSprintField2(value: Annotated[str, "Sprint status for sprint.data.field2. Options: Planning, Active, Review, Complete"], itemId: Annotated[str, "Sprint id."]) -> str:
+    return f"setSprintField2({value}, {itemId})"
+
+def setSprintField3(date: Annotated[str, "Target completion date YYYY-MM-DD for sprint.data.field3."], itemId: Annotated[str, "Sprint id."]) -> str:
+    return f"setSprintField3({date}, {itemId})"
+
+def addSprintField4TeamMember(
+    itemId: Annotated[str, "Sprint id."],
+    name: Annotated[str, "Team member name."] = "",
+    role: Annotated[str, "Team member role."] = "Developer",
+    capacity: Annotated[int, "Team member capacity 0-100."] = 100,
+) -> str:
+    return f"addSprintField4TeamMember({itemId}, {name}, {role}, {capacity})"
+
+def setSprintField4TeamMember(
+    itemId: Annotated[str, "Sprint id."],
+    memberId: Annotated[str, "Team member id."],
+    name: Annotated[Optional[str], "New name."] = None,
+    role: Annotated[Optional[str], "New role."] = None,
+    capacity: Annotated[Optional[int], "New capacity 0-100."] = None,
+) -> str:
+    return f"setSprintField4TeamMember({itemId}, {memberId}, {name}, {role}, {capacity})"
+
+def removeSprintField4TeamMember(
+    itemId: Annotated[str, "Sprint id."],
+    memberId: Annotated[str, "Team member id."],
+) -> str:
+    return f"removeSprintField4TeamMember({itemId}, {memberId})"
+
 def openSheetSelectionModal() -> str:
     """Open modal for selecting Google Sheets."""
     return "openSheetSelectionModal()"
@@ -214,6 +278,14 @@ FIELD_SCHEMA = (
     "  - field2: string (select: 'Option A' | 'Option B' | 'Option C')\n"
     "  - field3: string (date 'YYYY-MM-DD')\n"
     "  - field4: ChecklistItem[] where ChecklistItem={id: string, text: string, done: boolean, proposed: boolean}\n"
+    "  - field5: number (health score 0-100)\n"
+    "  - field6: RiskFactor[] where RiskFactor={id: string, type: string, description: string, severity: 'low'|'medium'|'high'|'critical'}\n"
+    "  - field7: SuggestedAction[] where SuggestedAction={id: string, title: string, description: string, priority: 'low'|'medium'|'high'}\n"
+    "- sprint.data:\n"
+    "  - field1: string (sprint name/title)\n"
+    "  - field2: string (status: 'Planning' | 'Active' | 'Review' | 'Complete')\n"
+    "  - field3: string (target completion date 'YYYY-MM-DD')\n"
+    "  - field4: TeamMember[] where TeamMember={id: string, name: string, role: string, capacity: number 0-100}\n"
     "- entity.data:\n"
     "  - field1: string\n"
     "  - field2: string (select: 'Option A' | 'Option B' | 'Option C')\n"
@@ -302,6 +374,11 @@ agentic_chat_router = get_ag_ui_workflow_router(
         addProjectChecklistItem,
         setProjectChecklistItem,
         removeProjectChecklistItem,
+        setProjectField5,
+        addProjectField6RiskFactor,
+        removeProjectField6RiskFactor,
+        addProjectField7SuggestedAction,
+        removeProjectField7SuggestedAction,
         setEntityField1,
         setEntityField2,
         addEntityField3,
@@ -311,6 +388,12 @@ agentic_chat_router = get_ag_ui_workflow_router(
         setChartField1Value,
         clearChartField1Value,
         removeChartField1,
+        setSprintField1,
+        setSprintField2,
+        setSprintField3,
+        addSprintField4TeamMember,
+        setSprintField4TeamMember,
+        removeSprintField4TeamMember,
         openSheetSelectionModal,
         setSyncSheetId,
     ],

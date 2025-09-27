@@ -1,11 +1,27 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { X, Plus } from "lucide-react";
+import { X, Plus, AlertTriangle, CheckCircle, Clock, Users } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Progress } from "@/components/ui/progress";
-import type { ChartData, EntityData, Item, ItemData, NoteData, ProjectData } from "@/lib/canvas/types";
-import { chartAddField1Metric, chartRemoveField1Metric, chartSetField1Label, chartSetField1Value, projectAddField4Item, projectRemoveField4Item, projectSetField4ItemDone, projectSetField4ItemText } from "@/lib/canvas/updates";
+import type { ChartData, EntityData, Item, ItemData, NoteData, ProjectData, SprintData } from "@/lib/canvas/types";
+import { 
+  chartAddField1Metric, 
+  chartRemoveField1Metric, 
+  chartSetField1Label, 
+  chartSetField1Value, 
+  projectAddField4Item, 
+  projectRemoveField4Item, 
+  projectSetField4ItemDone, 
+  projectSetField4ItemText,
+  projectAddField6RiskFactor,
+  projectRemoveField6RiskFactor,
+  projectAddField7SuggestedAction,
+  projectRemoveField7SuggestedAction,
+  sprintAddField4TeamMember,
+  sprintRemoveField4TeamMember,
+  sprintSetField4TeamMember
+} from "@/lib/canvas/updates";
 
 export function CardRenderer(props: {
   item: Item;
@@ -175,6 +191,227 @@ export function CardRenderer(props: {
                   onClick={() => onUpdateData((prev) => projectRemoveField4Item(prev as ProjectData, c.id))}
                 >
                   <X className="h-5 w-5 md:h-6 md:w-6" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Health Score */}
+        <div className="mt-4">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 5 (Health Score)</label>
+          <div className="flex items-center gap-3">
+            <Progress value={d.field5 || 75} className="flex-1" />
+            <input
+              type="number"
+              min={0}
+              max={100}
+              value={d.field5 || 75}
+              onChange={(e) => set({ field5: Math.max(0, Math.min(100, Number(e.target.value))) })}
+              className="w-16 rounded-md border px-2 py-1 text-xs outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50"
+            />
+            <span className="text-xs text-gray-500">%</span>
+          </div>
+        </div>
+
+        {/* Risk Factors */}
+        <div className="mt-4">
+          <div className="mb-2 flex items-center justify-between">
+            <label className="block text-xs font-medium text-gray-500">Field 6 (Risk Factors)</label>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+              onClick={() => onUpdateData((prev) => projectAddField6RiskFactor(prev as ProjectData, "Resource", "Potential resource constraint", "medium").next)}
+            >
+              <Plus className="size-3.5" />
+              Add risk
+            </button>
+          </div>
+          <div className="space-y-2">
+            {(!d.field6 || d.field6.length === 0) && (
+              <div className="grid place-items-center py-1.75 text-xs text-primary/50 font-medium text-pretty">
+                No risks identified yet.
+              </div>
+            )}
+            {(d.field6 ?? []).map((risk) => (
+              <div key={risk.id} className="flex items-start gap-2 p-2 border rounded-md bg-red-50/50">
+                <AlertTriangle className={cn("size-4 mt-0.5", {
+                  "text-red-600": risk.severity === "critical",
+                  "text-orange-500": risk.severity === "high", 
+                  "text-yellow-500": risk.severity === "medium",
+                  "text-blue-500": risk.severity === "low"
+                })} />
+                <div className="flex-1 min-w-0 space-y-1">
+                  <div className="text-xs font-medium">{risk.type}</div>
+                  <div className="text-xs text-gray-600">{risk.description}</div>
+                  <div className={cn("text-xs font-medium uppercase", {
+                    "text-red-600": risk.severity === "critical",
+                    "text-orange-500": risk.severity === "high", 
+                    "text-yellow-500": risk.severity === "medium",
+                    "text-blue-500": risk.severity === "low"
+                  })}>
+                    {risk.severity}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  aria-label="Remove risk"
+                  className="text-gray-400 hover:text-red-500"
+                  onClick={() => onUpdateData((prev) => projectRemoveField6RiskFactor(prev as ProjectData, risk.id))}
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Suggested Actions */}
+        <div className="mt-4">
+          <div className="mb-2 flex items-center justify-between">
+            <label className="block text-xs font-medium text-gray-500">Field 7 (Suggested Actions)</label>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+              onClick={() => onUpdateData((prev) => projectAddField7SuggestedAction(prev as ProjectData, "Review schedule", "Consider adjusting timeline based on current progress", "medium").next)}
+            >
+              <Plus className="size-3.5" />
+              Add action
+            </button>
+          </div>
+          <div className="space-y-2">
+            {(!d.field7 || d.field7.length === 0) && (
+              <div className="grid place-items-center py-1.75 text-xs text-primary/50 font-medium text-pretty">
+                No suggested actions yet.
+              </div>
+            )}
+            {(d.field7 ?? []).map((action) => (
+              <div key={action.id} className="flex items-start gap-2 p-2 border rounded-md bg-green-50/50">
+                <CheckCircle className={cn("size-4 mt-0.5", {
+                  "text-red-500": action.priority === "high",
+                  "text-yellow-500": action.priority === "medium", 
+                  "text-green-500": action.priority === "low"
+                })} />
+                <div className="flex-1 min-w-0 space-y-1">
+                  <div className="text-xs font-medium">{action.title}</div>
+                  <div className="text-xs text-gray-600">{action.description}</div>
+                  <div className={cn("text-xs font-medium uppercase", {
+                    "text-red-500": action.priority === "high",
+                    "text-yellow-500": action.priority === "medium", 
+                    "text-green-500": action.priority === "low"
+                  })}>
+                    {action.priority} priority
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  aria-label="Remove action"
+                  className="text-gray-400 hover:text-red-500"
+                  onClick={() => onUpdateData((prev) => projectRemoveField7SuggestedAction(prev as ProjectData, action.id))}
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (item.type === "sprint") {
+    const d = item.data as SprintData;
+    const set = (partial: Partial<SprintData>) => onUpdateData((prev) => ({ ...(prev as SprintData), ...partial }));
+    return (
+      <div className="mt-4 @container">
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (Sprint Name)</label>
+          <input
+            value={d.field1}
+            onChange={(e) => set({ field1: e.target.value })}
+            className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            placeholder="Sprint name"
+          />
+        </div>
+        <div className="contents @xs:grid gap-3 md:grid-cols-2">
+          <div className="@max-xs:mb-3">
+            <label className="mb-1 block text-xs font-medium text-gray-500">Field 2 (Status)</label>
+            <select
+              value={d.field2}
+              onChange={(e) => set({ field2: e.target.value })}
+              required
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent invalid:text-gray-400"
+            >
+              {["Planning", "Active", "Review", "Complete"].map((status) => (
+                <option key={status} value={status}>{status}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Field 3 (Target Date)</label>
+            <input
+              type="date"
+              value={d.field3}
+              onChange={(e) => set({ field3: e.target.value })}
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent"
+            />
+          </div>
+        </div>
+        
+        {/* Team Members */}
+        <div className="mt-4">
+          <div className="mb-2 flex items-center justify-between">
+            <label className="block text-xs font-medium text-gray-500">Field 4 (Team Members)</label>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+              onClick={() => onUpdateData((prev) => sprintAddField4TeamMember(prev as SprintData, "", "Developer", 100).next)}
+            >
+              <Plus className="size-3.5" />
+              Add member
+            </button>
+          </div>
+          <div className="space-y-2">
+            {(!d.field4 || d.field4.length === 0) && (
+              <div className="grid place-items-center py-1.75 text-xs text-primary/50 font-medium text-pretty">
+                No team members assigned yet.
+              </div>
+            )}
+            {(d.field4 ?? []).map((member) => (
+              <div key={member.id} className="flex items-center gap-2 p-2 border rounded-md bg-blue-50/50">
+                <Users className="size-4 text-blue-500" />
+                <div className="flex-1 grid grid-cols-1 @xs:grid-cols-3 gap-2">
+                  <input
+                    value={member.name}
+                    placeholder="Name"
+                    onChange={(e) => onUpdateData((prev) => sprintSetField4TeamMember(prev as SprintData, member.id, { name: e.target.value }))}
+                    className="rounded-md border px-2 py-1 text-xs outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50"
+                  />
+                  <input
+                    value={member.role}
+                    placeholder="Role"
+                    onChange={(e) => onUpdateData((prev) => sprintSetField4TeamMember(prev as SprintData, member.id, { role: e.target.value }))}
+                    className="rounded-md border px-2 py-1 text-xs outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50"
+                  />
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={member.capacity}
+                      onChange={(e) => onUpdateData((prev) => sprintSetField4TeamMember(prev as SprintData, member.id, { capacity: Number(e.target.value) }))}
+                      className="w-12 rounded-md border px-1 py-1 text-xs outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50"
+                    />
+                    <span className="text-xs text-gray-500">%</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  aria-label="Remove team member"
+                  className="text-gray-400 hover:text-red-500"
+                  onClick={() => onUpdateData((prev) => sprintRemoveField4TeamMember(prev as SprintData, member.id))}
+                >
+                  <X className="size-4" />
                 </button>
               </div>
             ))}

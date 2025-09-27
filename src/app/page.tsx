@@ -12,7 +12,7 @@ import ShikiHighlighter from "react-shiki/web";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import { EmptyState } from "@/components/empty-state";
 import { cn, getContentArg } from "@/lib/utils";
-import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType } from "@/lib/canvas/types";
+import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, SprintData, CardType } from "@/lib/canvas/types";
 import { initialState, isNonEmptyAgentState } from "@/lib/canvas/state";
 import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric } from "@/lib/canvas/updates";
 import useMediaQuery from "@/hooks/use-media-query";
@@ -330,6 +330,11 @@ export default function CopilotKitPage() {
           field3: "",
           field4: [],
           field4_id: 0,
+          field5: 75,
+          field6: [],
+          field6_id: 0,
+          field7: [],
+          field7_id: 0,
         } as ProjectData;
       case "entity":
         return {
@@ -342,6 +347,14 @@ export default function CopilotKitPage() {
         return { field1: "" } as NoteData;
       case "chart":
         return { field1: [], field1_id: 0 } as ChartData;
+      case "sprint":
+        return {
+          field1: "",
+          field2: "Planning",
+          field3: "",
+          field4: [],
+          field4_id: 0,
+        } as SprintData;
       default:
         return { content: "" } as NoteData;
     }
@@ -1109,7 +1122,7 @@ export default function CopilotKitPage() {
               console.log("Successfully synced existing items to new sheet");
               // Set the newly created sheet as the sync target and update title/description
               setState((prev) => ({ 
-                ...prev,
+                ...(prev ?? initialState),
                 globalTitle: result.title || title.trim(),
                 globalDescription: `Connected to Google Sheet: ${result.title || title.trim()}`,
                 syncSheetId: sheetId,

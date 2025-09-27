@@ -233,6 +233,19 @@ def create_default_data(item_type: str) -> Dict[str, Any]:
             "field3": "",
             "field4": [],
             "field4_id": 0,
+            "field5": 75,
+            "field6": [],
+            "field6_id": 0,
+            "field7": [],
+            "field7_id": 0,
+        }
+    elif item_type == "sprint":
+        return {
+            "field1": "",
+            "field2": "Planning",
+            "field3": "",
+            "field4": [],
+            "field4_id": 0,
         }
     elif item_type == "entity":
         return {
@@ -300,6 +313,20 @@ def create_item_data(item_type: str, row: List[str], headers: List[str]) -> Dict
             "field2": "",  # Select option (empty by default)
             "field3": find_date_in_row(row),  # Date field
             "field4": [],  # Checklist (empty)
+            "field4_id": 0,
+            "field5": 75,  # Default health score
+            "field6": [],  # Risk factors (empty)
+            "field6_id": 0,
+            "field7": [],  # Suggested actions (empty)
+            "field7_id": 0,
+        }
+    
+    elif item_type == "sprint":
+        return {
+            "field1": row[1] if len(row) > 1 else "",  # Sprint name
+            "field2": "Planning",  # Default status
+            "field3": find_date_in_row(row),  # Target date
+            "field4": [],  # Team members (empty)
             "field4_id": 0,
         }
     

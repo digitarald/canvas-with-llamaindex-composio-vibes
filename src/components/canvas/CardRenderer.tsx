@@ -1,11 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Activity, Database, Zap, Layers, Cloud, AlertTriangle } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Progress } from "@/components/ui/progress";
-import type { ChartData, EntityData, Item, ItemData, NoteData, ProjectData } from "@/lib/canvas/types";
+import type { ChartData, EntityData, Item, ItemData, NoteData, ProjectData, ServiceData, DatabaseData, MessageQueueData, ApiGatewayData, ExternalServiceData, IssueData, HealthStatus } from "@/lib/canvas/types";
 import { chartAddField1Metric, chartRemoveField1Metric, chartSetField1Label, chartSetField1Value, projectAddField4Item, projectRemoveField4Item, projectSetField4ItemDone, projectSetField4ItemText } from "@/lib/canvas/updates";
+import { getHealthStatusColor, getHealthStatusDot, formatHealthStatus } from "@/lib/canvas/utils";
 
 export function CardRenderer(props: {
   item: Item;
@@ -178,6 +179,373 @@ export function CardRenderer(props: {
                 </button>
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Microservices card types
+  if (item.type === "service") {
+    const d = item.data as ServiceData;
+    const setService = (partial: Partial<ServiceData>) => onUpdateData((prev) => ({ ...(prev as ServiceData), ...partial }));
+    return (
+      <div className="mt-4">
+        <div className="mb-3 flex items-center gap-2">
+          <Activity className="size-5 text-blue-600" />
+          <div className="flex items-center gap-2 flex-1">
+            <div className={cn("w-2 h-2 rounded-full", getHealthStatusDot(d.field2))} />
+            <span className={cn("px-2 py-1 rounded text-xs font-medium border", getHealthStatusColor(d.field2))}>
+              {formatHealthStatus(d.field2)}
+            </span>
+          </div>
+        </div>
+        <div className="space-y-3">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Service Endpoint</label>
+            <input
+              value={d.field1}
+              onChange={(e) => setService({ field1: e.target.value })}
+              placeholder="https://api.service.com"
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-500">Health Status</label>
+              <select
+                value={d.field2}
+                onChange={(e) => setService({ field2: e.target.value as HealthStatus })}
+                className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent"
+              >
+                <option value="healthy">Healthy</option>
+                <option value="warning">Warning</option>
+                <option value="critical">Critical</option>
+                <option value="unknown">Unknown</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-500">Version</label>
+              <input
+                value={d.field3}
+                onChange={(e) => setService({ field3: e.target.value })}
+                placeholder="v1.2.3"
+                className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Resource Usage</label>
+            <input
+              value={d.field4}
+              onChange={(e) => setService({ field4: e.target.value })}
+              placeholder="CPU: 45%, Memory: 60%"
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (item.type === "database") {
+    const d = item.data as DatabaseData;
+    const setDatabase = (partial: Partial<DatabaseData>) => onUpdateData((prev) => ({ ...(prev as DatabaseData), ...partial }));
+    return (
+      <div className="mt-4">
+        <div className="mb-3 flex items-center gap-2">
+          <Database className="size-5 text-purple-600" />
+          <div className="flex items-center gap-2 flex-1">
+            <div className={cn("w-2 h-2 rounded-full", getHealthStatusDot(d.field2))} />
+            <span className={cn("px-2 py-1 rounded text-xs font-medium border", getHealthStatusColor(d.field2))}>
+              {formatHealthStatus(d.field2)}
+            </span>
+          </div>
+        </div>
+        <div className="space-y-3">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Database Name</label>
+            <input
+              value={d.field1}
+              onChange={(e) => setDatabase({ field1: e.target.value })}
+              placeholder="user-db"
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-500">Type</label>
+              <input
+                value={d.field3}
+                onChange={(e) => setDatabase({ field3: e.target.value })}
+                placeholder="PostgreSQL"
+                className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-500">Connections</label>
+              <input
+                value={d.field4}
+                onChange={(e) => setDatabase({ field4: e.target.value })}
+                placeholder="25/100"
+                className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Performance</label>
+            <input
+              value={d.field5}
+              onChange={(e) => setDatabase({ field5: e.target.value })}
+              placeholder="Avg Query: 125ms"
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (item.type === "message-queue") {
+    const d = item.data as MessageQueueData;
+    const setQueue = (partial: Partial<MessageQueueData>) => onUpdateData((prev) => ({ ...(prev as MessageQueueData), ...partial }));
+    return (
+      <div className="mt-4">
+        <div className="mb-3 flex items-center gap-2">
+          <Zap className="size-5 text-orange-600" />
+          <div className="flex items-center gap-2 flex-1">
+            <div className={cn("w-2 h-2 rounded-full", getHealthStatusDot(d.field2))} />
+            <span className={cn("px-2 py-1 rounded text-xs font-medium border", getHealthStatusColor(d.field2))}>
+              {formatHealthStatus(d.field2)}
+            </span>
+          </div>
+        </div>
+        <div className="space-y-3">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Queue/Topic Name</label>
+            <input
+              value={d.field1}
+              onChange={(e) => setQueue({ field1: e.target.value })}
+              placeholder="user-events"
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-500">Type</label>
+              <input
+                value={d.field3}
+                onChange={(e) => setQueue({ field3: e.target.value })}
+                placeholder="RabbitMQ"
+                className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-500">Throughput</label>
+              <input
+                value={d.field4}
+                onChange={(e) => setQueue({ field4: e.target.value })}
+                placeholder="1.2k msg/sec"
+                className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (item.type === "api-gateway") {
+    const d = item.data as ApiGatewayData;
+    const setGateway = (partial: Partial<ApiGatewayData>) => onUpdateData((prev) => ({ ...(prev as ApiGatewayData), ...partial }));
+    return (
+      <div className="mt-4">
+        <div className="mb-3 flex items-center gap-2">
+          <Layers className="size-5 text-green-600" />
+          <div className="flex items-center gap-2 flex-1">
+            <div className={cn("w-2 h-2 rounded-full", getHealthStatusDot(d.field2))} />
+            <span className={cn("px-2 py-1 rounded text-xs font-medium border", getHealthStatusColor(d.field2))}>
+              {formatHealthStatus(d.field2)}
+            </span>
+          </div>
+        </div>
+        <div className="space-y-3">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Gateway Endpoint</label>
+            <input
+              value={d.field1}
+              onChange={(e) => setGateway({ field1: e.target.value })}
+              placeholder="https://api.example.com"
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Routing Rules</label>
+            <input
+              value={d.field3}
+              onChange={(e) => setGateway({ field3: e.target.value })}
+              placeholder="/api/v1/* → user-service"
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-500">Rate Limits</label>
+              <input
+                value={d.field4}
+                onChange={(e) => setGateway({ field4: e.target.value })}
+                placeholder="1000 req/min"
+                className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-500">Traffic</label>
+              <input
+                value={d.field5}
+                onChange={(e) => setGateway({ field5: e.target.value })}
+                placeholder="850 req/min"
+                className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (item.type === "external-service") {
+    const d = item.data as ExternalServiceData;
+    const setExternal = (partial: Partial<ExternalServiceData>) => onUpdateData((prev) => ({ ...(prev as ExternalServiceData), ...partial }));
+    return (
+      <div className="mt-4">
+        <div className="mb-3 flex items-center gap-2">
+          <Cloud className="size-5 text-blue-500" />
+          <div className="flex items-center gap-2 flex-1">
+            <div className={cn("w-2 h-2 rounded-full", getHealthStatusDot(d.field2))} />
+            <span className={cn("px-2 py-1 rounded text-xs font-medium border", getHealthStatusColor(d.field2))}>
+              {formatHealthStatus(d.field2)}
+            </span>
+          </div>
+        </div>
+        <div className="space-y-3">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Service Name</label>
+            <input
+              value={d.field1}
+              onChange={(e) => setExternal({ field1: e.target.value })}
+              placeholder="Stripe API"
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-500">Type</label>
+              <input
+                value={d.field3}
+                onChange={(e) => setExternal({ field3: e.target.value })}
+                placeholder="Payment API"
+                className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-500">SLA/Uptime</label>
+              <input
+                value={d.field4}
+                onChange={(e) => setExternal({ field4: e.target.value })}
+                placeholder="99.9% SLA"
+                className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Integration Details</label>
+            <input
+              value={d.field5}
+              onChange={(e) => setExternal({ field5: e.target.value })}
+              placeholder="Webhook endpoints configured"
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (item.type === "issue") {
+    const d = item.data as IssueData;
+    const setIssue = (partial: Partial<IssueData>) => onUpdateData((prev) => ({ ...(prev as IssueData), ...partial }));
+    return (
+      <div className="mt-4">
+        <div className="mb-3 flex items-center gap-2">
+          <AlertTriangle className="size-5 text-red-600" />
+          <span className={cn(
+            "px-2 py-1 rounded text-xs font-medium border",
+            d.field2 === "critical" ? "text-red-600 bg-red-50 border-red-200" :
+            d.field2 === "high" ? "text-orange-600 bg-orange-50 border-orange-200" :
+            d.field2 === "medium" ? "text-yellow-600 bg-yellow-50 border-yellow-200" :
+            "text-gray-600 bg-gray-50 border-gray-200"
+          )}>
+            {d.field2 || "Unknown"} Priority
+          </span>
+        </div>
+        <div className="space-y-3">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Issue Description</label>
+            <TextareaAutosize
+              value={d.field1}
+              onChange={(e) => setIssue({ field1: e.target.value })}
+              placeholder="Describe the issue..."
+              className="w-full resize-none rounded-md border bg-white/60 p-3 text-sm leading-6 outline-none placeholder:text-gray-400 transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+              minRows={2}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-500">Severity</label>
+              <select
+                value={d.field2}
+                onChange={(e) => setIssue({ field2: e.target.value })}
+                className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent"
+              >
+                <option value="">Select...</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-500">Status</label>
+              <select
+                value={d.field3}
+                onChange={(e) => setIssue({ field3: e.target.value })}
+                className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent"
+              >
+                <option value="">Select...</option>
+                <option value="open">Open</option>
+                <option value="investigating">Investigating</option>
+                <option value="resolved">Resolved</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Affected Services</label>
+            <input
+              value={d.field4}
+              onChange={(e) => setIssue({ field4: e.target.value })}
+              placeholder="user-service, payment-service"
+              className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Resolution Notes</label>
+            <TextareaAutosize
+              value={d.field5}
+              onChange={(e) => setIssue({ field5: e.target.value })}
+              placeholder="Resolution steps or notes..."
+              className="w-full resize-none rounded-md border bg-white/60 p-3 text-sm leading-6 outline-none placeholder:text-gray-400 transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
+              minRows={2}
+            />
           </div>
         </div>
       </div>

@@ -12,7 +12,7 @@ import ShikiHighlighter from "react-shiki/web";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import { EmptyState } from "@/components/empty-state";
 import { cn, getContentArg } from "@/lib/utils";
-import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType } from "@/lib/canvas/types";
+import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, ServiceData, DatabaseData, MessageQueueData, ApiGatewayData, ExternalServiceData, IssueData, CardType } from "@/lib/canvas/types";
 import { initialState, isNonEmptyAgentState } from "@/lib/canvas/state";
 import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric } from "@/lib/canvas/updates";
 import useMediaQuery from "@/hooks/use-media-query";
@@ -342,6 +342,54 @@ export default function CopilotKitPage() {
         return { field1: "" } as NoteData;
       case "chart":
         return { field1: [], field1_id: 0 } as ChartData;
+      case "service":
+        return {
+          field1: "",
+          field2: "unknown",
+          field3: "",
+          field4: "",
+          field5: [],
+        } as ServiceData;
+      case "database":
+        return {
+          field1: "",
+          field2: "unknown",
+          field3: "",
+          field4: "",
+          field5: "",
+        } as DatabaseData;
+      case "message-queue":
+        return {
+          field1: "",
+          field2: "unknown",
+          field3: "",
+          field4: "",
+          field5: [],
+        } as MessageQueueData;
+      case "api-gateway":
+        return {
+          field1: "",
+          field2: "unknown",
+          field3: "",
+          field4: "",
+          field5: "",
+        } as ApiGatewayData;
+      case "external-service":
+        return {
+          field1: "",
+          field2: "unknown",
+          field3: "",
+          field4: "",
+          field5: "",
+        } as ExternalServiceData;
+      case "issue":
+        return {
+          field1: "",
+          field2: "",
+          field3: "",
+          field4: "",
+          field5: "",
+        } as IssueData;
       default:
         return { content: "" } as NoteData;
     }
@@ -1109,9 +1157,11 @@ export default function CopilotKitPage() {
               console.log("Successfully synced existing items to new sheet");
               // Set the newly created sheet as the sync target and update title/description
               setState((prev) => ({ 
-                ...prev,
+                items: prev?.items || [],
                 globalTitle: result.title || title.trim(),
                 globalDescription: `Connected to Google Sheet: ${result.title || title.trim()}`,
+                lastAction: prev?.lastAction || "",
+                itemsCreated: prev?.itemsCreated || 0,
                 syncSheetId: sheetId,
                 syncSheetName: "Sheet1" 
               }));

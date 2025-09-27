@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
 
-import { Manrope } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
 import { CopilotKit } from "@copilotkit/react-core";
 import "./globals.css";
 import "@copilotkit/react-ui/styles.css";
 
-const manrope = Manrope({
-  subsets: ["latin"],
-  display: "swap",
+// Use system fonts instead of Google Fonts to avoid network dependency
+const manrope = {
   variable: "--font-manrope",
-});
+};
 
 export const metadata: Metadata = {
   title: "AG-UI Canvas | CopilotKit with LlamaIndex",

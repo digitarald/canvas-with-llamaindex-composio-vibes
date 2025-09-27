@@ -12,7 +12,7 @@ import ShikiHighlighter from "react-shiki/web";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import { EmptyState } from "@/components/empty-state";
 import { cn, getContentArg } from "@/lib/utils";
-import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType } from "@/lib/canvas/types";
+import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType, ApiEndpointData, ApiFlowData, MockServerData, TestSuiteData } from "@/lib/canvas/types";
 import { initialState, isNonEmptyAgentState } from "@/lib/canvas/state";
 import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric } from "@/lib/canvas/updates";
 import useMediaQuery from "@/hooks/use-media-query";
@@ -156,7 +156,7 @@ export default function CopilotKitPage() {
       ].join("\n");
       const toolUsageHints = [
         "TOOL USAGE HINTS:",
-        "- To create cards, call createItem with { type: 'project' | 'entity' | 'note' | 'chart', name?: string } and use returned id.",
+        "- To create cards, call createItem with { type: 'project' | 'entity' | 'note' | 'chart' | 'api-endpoint' | 'api-flow' | 'mock-server' | 'test-suite', name?: string } and use returned id.",
         "- Prefer calling specific actions: setProjectField1, setProjectField2, setProjectField3, addProjectChecklistItem, setProjectChecklistItem, removeProjectChecklistItem.",
         "- field2 values: 'Option A' | 'Option B' | 'Option C' | '' (empty clears).",
         "- field3 accepts natural dates (e.g., 'tomorrow', '2025-01-30'); it will be normalized to YYYY-MM-DD.",
@@ -238,6 +238,10 @@ export default function CopilotKitPage() {
         { id: "entity", label: "Entity" },
         { id: "note", label: "Note" },
         { id: "chart", label: "Chart" },
+        { id: "api-endpoint", label: "API Endpoint" },
+        { id: "api-flow", label: "API Flow" },
+        { id: "mock-server", label: "Mock Server" },
+        { id: "test-suite", label: "Test Suite" },
       ];
       let selected: CardType | "" = "";
       return (
@@ -342,8 +346,47 @@ export default function CopilotKitPage() {
         return { field1: "" } as NoteData;
       case "chart":
         return { field1: [], field1_id: 0 } as ChartData;
+      case "api-endpoint":
+        return {
+          method: "GET",
+          url: "",
+          headers: [],
+          authType: "none",
+          authConfig: {},
+          requestSchema: "",
+          responseSchema: "",
+          description: "",
+          status: "idle",
+          headers_id: 0
+        } as ApiEndpointData;
+      case "api-flow":
+        return {
+          steps: [],
+          description: "",
+          status: "idle",
+          results: {},
+          steps_id: 0
+        } as ApiFlowData;
+      case "mock-server":
+        return {
+          routes: [],
+          baseUrl: "http://localhost:3001",
+          description: "",
+          isRunning: false,
+          routes_id: 0
+        } as MockServerData;
+      case "test-suite":
+        return {
+          testCases: [],
+          description: "",
+          coverage: 0,
+          totalTests: 0,
+          passedTests: 0,
+          failedTests: 0,
+          testCases_id: 0
+        } as TestSuiteData;
       default:
-        return { content: "" } as NoteData;
+        return { field1: "" } as NoteData;
     }
   }, []);
 
@@ -858,7 +901,7 @@ export default function CopilotKitPage() {
     description: "Create a new item.",
     available: "remote",
     parameters: [
-      { name: "type", type: "string", required: true, description: "One of: project, entity, note, chart." },
+      { name: "type", type: "string", required: true, description: "One of: project, entity, note, chart, api-endpoint, api-flow, mock-server, test-suite." },
       { name: "name", type: "string", required: false, description: "Optional item name." },
     ],
     handler: ({ type, name }: { type: string; name?: string }) => {
@@ -993,7 +1036,7 @@ export default function CopilotKitPage() {
             
             // Check if the sheet has a different format than canvas
             const hasCanvasFormat = viewState.items.some(item => 
-              item.type && ['project', 'entity', 'note', 'chart'].includes(item.type)
+              item.type && ['project', 'entity', 'note', 'chart', 'api-endpoint', 'api-flow', 'mock-server', 'test-suite'].includes(item.type)
             );
             
             const sheetHasData = previewResult.data && previewResult.data.items && previewResult.data.items.length > 0;
@@ -1680,7 +1723,7 @@ export default function CopilotKitPage() {
               
               <div className="text-xs text-gray-500 space-y-1">
                 <p>📄 <strong>Create New:</strong> Creates a fresh sheet and opens it in a new tab. Current canvas items will be synced automatically.</p>
-                <p>💡 <strong>Import Existing:</strong> Make sure your sheet is publicly accessible or you're signed in to Composio with the right Google account.</p>
+                <p>💡 <strong>Import Existing:</strong> Make sure your sheet is publicly accessible or you&apos;re signed in to Composio with the right Google account.</p>
                 <p>🤖 The system will analyze your data and create the best card types (projects, entities, notes, or charts).</p>
               </div>
             </div>
@@ -1717,7 +1760,7 @@ export default function CopilotKitPage() {
               
               <p className="text-sm text-gray-600">
                 Importing will completely replace your current canvas data with the sheet contents. 
-                Your current canvas items will be lost unless you've saved them elsewhere.
+                Your current canvas items will be lost unless you&apos;ve saved them elsewhere.
               </p>
               
               <div className="flex gap-2">

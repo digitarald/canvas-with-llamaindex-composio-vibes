@@ -18,6 +18,7 @@ export function NewItemMenu({ onSelect, align = "end", className }: { onSelect: 
       </DropdownMenuTrigger>
       <DropdownMenuContent align={align} className="min-w-0 w-fit bg-background">
         <DropdownMenuItem onClick={() => onSelect("project")}>Project</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onSelect("sprint")}>Sprint</DropdownMenuItem>
         <DropdownMenuItem onClick={() => onSelect("entity")}>Entity</DropdownMenuItem>
         <DropdownMenuItem onClick={() => onSelect("note")}>Note</DropdownMenuItem>
         <DropdownMenuItem onClick={() => onSelect("chart")}>Chart</DropdownMenuItem>

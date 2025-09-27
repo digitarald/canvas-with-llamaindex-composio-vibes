@@ -12,12 +12,13 @@ import ShikiHighlighter from "react-shiki/web";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import { EmptyState } from "@/components/empty-state";
 import { cn, getContentArg } from "@/lib/utils";
-import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType } from "@/lib/canvas/types";
+import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, SprintData, CardType } from "@/lib/canvas/types";
 import { initialState, isNonEmptyAgentState } from "@/lib/canvas/state";
 import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric } from "@/lib/canvas/updates";
 import useMediaQuery from "@/hooks/use-media-query";
 import ItemHeader from "@/components/canvas/ItemHeader";
 import NewItemMenu from "@/components/canvas/NewItemMenu";
+import { ProjectInsightsDashboard } from "@/components/insights/ProjectInsightsDashboard";
 
 export default function CopilotKitPage() {
   const { state, setState } = useCoAgent<AgentState>({
@@ -38,6 +39,7 @@ export default function CopilotKitPage() {
 
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [showJsonView, setShowJsonView] = useState<boolean>(false);
+  const [showInsights, setShowInsights] = useState<boolean>(false);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const { scrollY } = useScroll({ container: scrollAreaRef });
   const headerScrollThreshold = 64;
@@ -330,6 +332,11 @@ export default function CopilotKitPage() {
           field3: "",
           field4: [],
           field4_id: 0,
+          field5: 75,
+          field6: [],
+          field6_id: 0,
+          field7: [],
+          field7_id: 0,
         } as ProjectData;
       case "entity":
         return {
@@ -342,6 +349,14 @@ export default function CopilotKitPage() {
         return { field1: "" } as NoteData;
       case "chart":
         return { field1: [], field1_id: 0 } as ChartData;
+      case "sprint":
+        return {
+          field1: "",
+          field2: "Planning",
+          field3: "",
+          field4: [],
+          field4_id: 0,
+        } as SprintData;
       default:
         return { content: "" } as NoteData;
     }
@@ -1109,7 +1124,7 @@ export default function CopilotKitPage() {
               console.log("Successfully synced existing items to new sheet");
               // Set the newly created sheet as the sync target and update title/description
               setState((prev) => ({ 
-                ...prev,
+                ...(prev ?? initialState),
                 globalTitle: result.title || title.trim(),
                 globalDescription: `Connected to Google Sheet: ${result.title || title.trim()}`,
                 syncSheetId: sheetId,
@@ -1413,6 +1428,10 @@ export default function CopilotKitPage() {
                         </ShikiHighlighter>
                       </div>
                     </div>
+                  ) : showInsights ? (
+                    <div className="pb-16">
+                      <ProjectInsightsDashboard state={viewState} />
+                    </div>
                   ) : (
                     <div className="grid gap-6 lg:grid-cols-2 pb-20">
                       {(viewState.items ?? []).map((item) => (
@@ -1471,6 +1490,16 @@ export default function CopilotKitPage() {
                 }}
               >
                 📊 Sheets
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className={cn(
+                  "gap-1.25 text-base font-semibold rounded-none border-r-0",
+                )}
+                onClick={() => setShowInsights((v) => !v)}
+              >
+                {showInsights ? "📊 Hide" : "🔍 Insights"}
               </Button>
               <Button
                 type="button"
@@ -1680,7 +1709,7 @@ export default function CopilotKitPage() {
               
               <div className="text-xs text-gray-500 space-y-1">
                 <p>📄 <strong>Create New:</strong> Creates a fresh sheet and opens it in a new tab. Current canvas items will be synced automatically.</p>
-                <p>💡 <strong>Import Existing:</strong> Make sure your sheet is publicly accessible or you're signed in to Composio with the right Google account.</p>
+                <p>💡 <strong>Import Existing:</strong> Make sure your sheet is publicly accessible or you&apos;re signed in to Composio with the right Google account.</p>
                 <p>🤖 The system will analyze your data and create the best card types (projects, entities, notes, or charts).</p>
               </div>
             </div>
@@ -1717,7 +1746,7 @@ export default function CopilotKitPage() {
               
               <p className="text-sm text-gray-600">
                 Importing will completely replace your current canvas data with the sheet contents. 
-                Your current canvas items will be lost unless you've saved them elsewhere.
+                Your current canvas items will be lost unless you&apos;ve saved them elsewhere.
               </p>
               
               <div className="flex gap-2">

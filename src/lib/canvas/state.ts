@@ -1,4 +1,4 @@
-import { AgentState, CardType, ChartData, EntityData, ItemData, NoteData, ProjectData } from "@/lib/canvas/types";
+import { AgentState, CardType, ChartData, EntityData, ItemData, NoteData, ProjectData, SprintData } from "@/lib/canvas/types";
 
 export const initialState: AgentState = {
   items: [],
@@ -24,6 +24,11 @@ export function defaultDataFor(type: CardType): ItemData {
         field3: "",
         field4: [],
         field4_id: 0,
+        field5: 75, // default health score
+        field6: [], // risk factors
+        field6_id: 0,
+        field7: [], // suggested actions
+        field7_id: 0,
       } as ProjectData;
     case "entity":
       return {
@@ -36,6 +41,14 @@ export function defaultDataFor(type: CardType): ItemData {
       return { field1: "" } as NoteData;
     case "chart":
       return { field1: [], field1_id: 0 } as ChartData;
+    case "sprint":
+      return {
+        field1: "",
+        field2: "Planning",
+        field3: "",
+        field4: [],
+        field4_id: 0,
+      } as SprintData;
     default:
       return { field1: "" } as NoteData;
   }

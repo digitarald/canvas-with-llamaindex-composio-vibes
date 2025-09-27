@@ -10,7 +10,7 @@ export interface LinkItem {
   url: string;
 }
 
-export type CardType = "project" | "entity" | "note" | "chart";
+export type CardType = "project" | "entity" | "note" | "chart" | "research-topic" | "insight";
 
 export interface ProjectData {
   field1: string; // text
@@ -29,6 +29,9 @@ export interface EntityData {
 
 export interface NoteData {
   field1?: string; // textarea
+  field2?: string; // source attribution and credibility scoring
+  field3?: string[]; // annotation tags (themes, relevance, sentiment)
+  field4?: string[]; // AI-suggested cross-references and connections
 }
 
 export interface ChartMetric {
@@ -42,7 +45,24 @@ export interface ChartData {
   field1_id: number; // id counter
 }
 
-export type ItemData = ProjectData | EntityData | NoteData | ChartData;
+export interface ResearchTopicData {
+  field1: string; // research question/hypothesis
+  field2: string; // research status (Scoping, Data Collection, Analysis, Synthesis, Complete)
+  field3: string; // target completion date
+  field4: string[]; // data sources (array of connected APIs and databases)
+  field5: string; // key findings (AI-generated insights updated in real-time)
+  field6: string; // confidence level (AI assessment of data quality and completeness)
+  field7: string[]; // related topics (automatically discovered connections)
+}
+
+export interface InsightData {
+  field1: string; // insight statement/conclusion
+  field2: string; // evidence strength (Weak, Moderate, Strong, Conclusive)
+  field3: string[]; // supporting data points (array of source references)
+  field4: string; // counterarguments or limitations
+}
+
+export type ItemData = ProjectData | EntityData | NoteData | ChartData | ResearchTopicData | InsightData;
 
 export interface Item {
   id: string;

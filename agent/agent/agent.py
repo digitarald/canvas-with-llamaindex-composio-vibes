@@ -71,7 +71,7 @@ def list_sheet_names(sheet_id: Annotated[str, "Google Sheets ID to list availabl
 # --- Frontend tool stubs (names/signatures only; execution happens in the UI) ---
 
 def createItem(
-    type: Annotated[str, "One of: project, entity, note, chart."],
+    type: Annotated[str, "One of: project, entity, note, chart, research-topic, insight."],
     name: Annotated[Optional[str], "Optional item name."] = None,
 ) -> str:
     """Create a new canvas item and return its id."""
@@ -190,6 +190,66 @@ def clearChartField1Value(itemId: Annotated[str, "Chart id."], index: Annotated[
 def removeChartField1(itemId: Annotated[str, "Chart id."], index: Annotated[int, "Metric index (0-based)."]) -> str:
     return f"removeChartField1({itemId}, {index})"
 
+# Enhanced Note actions
+def setNoteField2(value: Annotated[str, "Source attribution and credibility for note.data.field2."], itemId: Annotated[str, "Note id."]) -> str:
+    return f"setNoteField2({value}, {itemId})"
+
+def addNoteField3(tag: Annotated[str, "Annotation tag to add to note.data.field3."], itemId: Annotated[str, "Note id."]) -> str:
+    return f"addNoteField3({tag}, {itemId})"
+
+def removeNoteField3(tag: Annotated[str, "Annotation tag to remove from note.data.field3."], itemId: Annotated[str, "Note id."]) -> str:
+    return f"removeNoteField3({tag}, {itemId})"
+
+def addNoteField4(reference: Annotated[str, "Cross-reference to add to note.data.field4."], itemId: Annotated[str, "Note id."]) -> str:
+    return f"addNoteField4({reference}, {itemId})"
+
+def removeNoteField4(reference: Annotated[str, "Cross-reference to remove from note.data.field4."], itemId: Annotated[str, "Note id."]) -> str:
+    return f"removeNoteField4({reference}, {itemId})"
+
+# Research Topic actions
+def setResearchTopicField1(value: Annotated[str, "Research question/hypothesis for research-topic.data.field1."], itemId: Annotated[str, "Research topic id."]) -> str:
+    return f"setResearchTopicField1({value}, {itemId})"
+
+def setResearchTopicField2(status: Annotated[str, "Research status: 'Scoping', 'Data Collection', 'Analysis', 'Synthesis', or 'Complete'."], itemId: Annotated[str, "Research topic id."]) -> str:
+    return f"setResearchTopicField2({status}, {itemId})"
+
+def setResearchTopicField3(date: Annotated[str, "Target completion date YYYY-MM-DD for research-topic.data.field3."], itemId: Annotated[str, "Research topic id."]) -> str:
+    return f"setResearchTopicField3({date}, {itemId})"
+
+def addResearchTopicField4(source: Annotated[str, "Data source to add to research-topic.data.field4."], itemId: Annotated[str, "Research topic id."]) -> str:
+    return f"addResearchTopicField4({source}, {itemId})"
+
+def removeResearchTopicField4(source: Annotated[str, "Data source to remove from research-topic.data.field4."], itemId: Annotated[str, "Research topic id."]) -> str:
+    return f"removeResearchTopicField4({source}, {itemId})"
+
+def setResearchTopicField5(findings: Annotated[str, "Key findings for research-topic.data.field5."], itemId: Annotated[str, "Research topic id."]) -> str:
+    return f"setResearchTopicField5({findings}, {itemId})"
+
+def setResearchTopicField6(confidence: Annotated[str, "Confidence level: 'Low', 'Medium', 'High', or 'Very High'."], itemId: Annotated[str, "Research topic id."]) -> str:
+    return f"setResearchTopicField6({confidence}, {itemId})"
+
+def addResearchTopicField7(topic: Annotated[str, "Related topic to add to research-topic.data.field7."], itemId: Annotated[str, "Research topic id."]) -> str:
+    return f"addResearchTopicField7({topic}, {itemId})"
+
+def removeResearchTopicField7(topic: Annotated[str, "Related topic to remove from research-topic.data.field7."], itemId: Annotated[str, "Research topic id."]) -> str:
+    return f"removeResearchTopicField7({topic}, {itemId})"
+
+# Insight actions
+def setInsightField1(statement: Annotated[str, "Insight statement/conclusion for insight.data.field1."], itemId: Annotated[str, "Insight id."]) -> str:
+    return f"setInsightField1({statement}, {itemId})"
+
+def setInsightField2(strength: Annotated[str, "Evidence strength: 'Weak', 'Moderate', 'Strong', or 'Conclusive'."], itemId: Annotated[str, "Insight id."]) -> str:
+    return f"setInsightField2({strength}, {itemId})"
+
+def addInsightField3(dataPoint: Annotated[str, "Supporting data point to add to insight.data.field3."], itemId: Annotated[str, "Insight id."]) -> str:
+    return f"addInsightField3({dataPoint}, {itemId})"
+
+def removeInsightField3(dataPoint: Annotated[str, "Supporting data point to remove from insight.data.field3."], itemId: Annotated[str, "Insight id."]) -> str:
+    return f"removeInsightField3({dataPoint}, {itemId})"
+
+def setInsightField4(limitations: Annotated[str, "Counterarguments or limitations for insight.data.field4."], itemId: Annotated[str, "Insight id."]) -> str:
+    return f"setInsightField4({limitations}, {itemId})"
+
 def openSheetSelectionModal() -> str:
     """Open modal for selecting Google Sheets."""
     return "openSheetSelectionModal()"
@@ -220,9 +280,25 @@ FIELD_SCHEMA = (
     "  - field3: string[] (selected tags; subset of field3_options)\n"
     "  - field3_options: string[] (available tags)\n"
     "- note.data:\n"
-    "  - field1: string (textarea; represents description)\n"
+    "  - field1: string (textarea; content)\n"
+    "  - field2: string (source attribution and credibility scoring)\n"
+    "  - field3: string[] (annotation tags for themes, relevance, sentiment)\n"
+    "  - field4: string[] (AI-suggested cross-references and connections)\n"
     "- chart.data:\n"
     "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''\n"
+    "- research-topic.data:\n"
+    "  - field1: string (research question/hypothesis)\n"
+    "  - field2: string (select: 'Scoping' | 'Data Collection' | 'Analysis' | 'Synthesis' | 'Complete')\n"
+    "  - field3: string (target completion date 'YYYY-MM-DD')\n"
+    "  - field4: string[] (data sources - APIs and databases)\n"
+    "  - field5: string (key findings - AI-generated insights)\n"
+    "  - field6: string (select: 'Low' | 'Medium' | 'High' | 'Very High' - confidence level)\n"
+    "  - field7: string[] (related topics - automatically discovered connections)\n"
+    "- insight.data:\n"
+    "  - field1: string (insight statement/conclusion)\n"
+    "  - field2: string (select: 'Weak' | 'Moderate' | 'Strong' | 'Conclusive' - evidence strength)\n"
+    "  - field3: string[] (supporting data points - source references)\n"
+    "  - field4: string (counterarguments or limitations)\n"
 )
 
 SYSTEM_PROMPT = (
@@ -230,12 +306,14 @@ SYSTEM_PROMPT = (
     + FIELD_SCHEMA +
     "\nMUTATION/TOOL POLICY:\n"
     "- When you claim to create/update/delete, you MUST call the corresponding tool(s) (frontend or backend).\n"
-    "- To create new cards, call the frontend tool `createItem` with `type` in {project, entity, note, chart} and optional `name`.\n"
+    "- To create new cards, call the frontend tool `createItem` with `type` in {project, entity, note, chart, research-topic, insight} and optional `name`.\n"
     "- After tools run, rely on the latest shared state (ground truth) when replying.\n"
     "- To set a card's subtitle (never the data fields): use setItemSubtitleOrDescription.\n\n"
     "DESCRIPTION MAPPING:\n"
     "- For project/entity/chart: treat 'description', 'overview', 'summary', 'caption', 'blurb' as the card subtitle; use setItemSubtitleOrDescription.\n"
-    "- For notes: 'content', 'description', 'text', or 'note' refers to note content; use setNoteField1 / appendNoteField1 / clearNoteField1.\n\n"
+    "- For notes: 'content', 'description', 'text', or 'note' refers to note content; use setNoteField1 / appendNoteField1 / clearNoteField1.\n"
+    "- For research-topic: field1=research question, field2=status, field3=target date, field4=data sources, field5=key findings, field6=confidence, field7=related topics.\n"
+    "- For insight: field1=insight statement, field2=evidence strength, field3=supporting data points, field4=counterarguments/limitations.\n\n"
     "GOOGLE SHEETS INTEGRATION & AUTO-SYNC WORKFLOW:\n"
     "- GOOGLE SHEETS IS THE SOURCE OF TRUTH: Always prioritize Google Sheets data over canvas state when there are conflicts.\n"
     "- AUTO-SYNC BEHAVIOR: Automatically sync between Google Sheets and canvas WITHOUT asking questions. Just do it.\n"
@@ -311,6 +389,28 @@ agentic_chat_router = get_ag_ui_workflow_router(
         setChartField1Value,
         clearChartField1Value,
         removeChartField1,
+        # Enhanced Note actions
+        setNoteField2,
+        addNoteField3,
+        removeNoteField3,
+        addNoteField4,
+        removeNoteField4,
+        # Research Topic actions
+        setResearchTopicField1,
+        setResearchTopicField2,
+        setResearchTopicField3,
+        addResearchTopicField4,
+        removeResearchTopicField4,
+        setResearchTopicField5,
+        setResearchTopicField6,
+        addResearchTopicField7,
+        removeResearchTopicField7,
+        # Insight actions
+        setInsightField1,
+        setInsightField2,
+        addInsightField3,
+        removeInsightField3,
+        setInsightField4,
         openSheetSelectionModal,
         setSyncSheetId,
     ],

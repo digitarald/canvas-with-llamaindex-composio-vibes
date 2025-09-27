@@ -71,7 +71,7 @@ def list_sheet_names(sheet_id: Annotated[str, "Google Sheets ID to list availabl
 # --- Frontend tool stubs (names/signatures only; execution happens in the UI) ---
 
 def createItem(
-    type: Annotated[str, "One of: project, entity, note, chart."],
+    type: Annotated[str, "One of: project, entity, note, chart, service, database, messagequeue, apigateway, externalservice, issue."],
     name: Annotated[Optional[str], "Optional item name."] = None,
 ) -> str:
     """Create a new canvas item and return its id."""
@@ -223,6 +223,48 @@ FIELD_SCHEMA = (
     "  - field1: string (textarea; represents description)\n"
     "- chart.data:\n"
     "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''\n"
+    "- service.data (microservice):\n"
+    "  - field1: string (service identifier/name)\n"
+    "  - field2: string (health status: 'healthy' | 'warning' | 'error')\n"
+    "  - field3: string (service type: 'web' | 'api' | 'worker' | 'cron' | 'stream')\n"
+    "  - field4: Array<{id: string, label: string, value: number | ''}> (resource metrics: CPU, Memory, etc.)\n"
+    "  - field5: string (deployment info: version, environment, replicas)\n"
+    "  - field6: string[] (dependencies: other service names)\n"
+    "- database.data:\n"
+    "  - field1: string (database name)\n"
+    "  - field2: string (database type: 'postgresql' | 'mysql' | 'mongodb' | 'redis' | 'elasticsearch' | 'cassandra')\n"
+    "  - field3: string (connection status: 'connected' | 'slow' | 'disconnected')\n"
+    "  - field4: Array<{id: string, label: string, value: number | ''}> (performance metrics: pool usage, query time)\n"
+    "  - field5: string (schema info: tables count, size, key entities)\n"
+    "  - field6: string[] (connected services)\n"
+    "- messagequeue.data:\n"
+    "  - field1: string (queue/topic name)\n"
+    "  - field2: string (queue type: 'rabbitmq' | 'kafka' | 'sqs' | 'pubsub' | 'redis')\n"
+    "  - field3: string (status: 'running' | 'warning' | 'stopped')\n"
+    "  - field4: Array<{id: string, label: string, value: number | ''}> (throughput metrics)\n"
+    "  - field5: string (message backlog count/size)\n"
+    "  - field6: string[] (producers/consumers)\n"
+    "- apigateway.data:\n"
+    "  - field1: string (gateway name)\n"
+    "  - field2: string (gateway type: 'nginx' | 'traefik' | 'aws-alb' | 'kong' | 'envoy')\n"
+    "  - field3: string (status: 'active' | 'degraded' | 'down')\n"
+    "  - field4: Array<{id: string, label: string, value: number | ''}> (traffic metrics)\n"
+    "  - field5: string (routing rules count, rate limits)\n"
+    "  - field6: string[] (backend services)\n"
+    "- externalservice.data:\n"
+    "  - field1: string (service name)\n"
+    "  - field2: string (provider: 'aws' | 'stripe' | 'auth0' | 'twilio' | 'sendgrid' | 'other')\n"
+    "  - field3: string (connection status: 'connected' | 'slow' | 'failed')\n"
+    "  - field4: Array<{id: string, label: string, value: number | ''}> (usage metrics)\n"
+    "  - field5: string (API version/endpoint)\n"
+    "  - field6: string[] (dependent internal services)\n"
+    "- issue.data (incident/debugging):\n"
+    "  - field1: string (issue title)\n"
+    "  - field2: string (severity: 'low' | 'medium' | 'high' | 'critical')\n"
+    "  - field3: string (status: 'open' | 'investigating' | 'resolved')\n"
+    "  - field4: ChecklistItem[] (action items/debugging steps)\n"
+    "  - field5: string (affected services)\n"
+    "  - field6: string (incident timeline/notes)\n"
 )
 
 SYSTEM_PROMPT = (
@@ -230,11 +272,11 @@ SYSTEM_PROMPT = (
     + FIELD_SCHEMA +
     "\nMUTATION/TOOL POLICY:\n"
     "- When you claim to create/update/delete, you MUST call the corresponding tool(s) (frontend or backend).\n"
-    "- To create new cards, call the frontend tool `createItem` with `type` in {project, entity, note, chart} and optional `name`.\n"
+    "- To create new cards, call the frontend tool `createItem` with `type` in {project, entity, note, chart, service, database, messagequeue, apigateway, externalservice, issue} and optional `name`.\n"
     "- After tools run, rely on the latest shared state (ground truth) when replying.\n"
     "- To set a card's subtitle (never the data fields): use setItemSubtitleOrDescription.\n\n"
     "DESCRIPTION MAPPING:\n"
-    "- For project/entity/chart: treat 'description', 'overview', 'summary', 'caption', 'blurb' as the card subtitle; use setItemSubtitleOrDescription.\n"
+    "- For project/entity/chart/service/database/messagequeue/apigateway/externalservice/issue: treat 'description', 'overview', 'summary', 'caption', 'blurb' as the card subtitle; use setItemSubtitleOrDescription.\n"
     "- For notes: 'content', 'description', 'text', or 'note' refers to note content; use setNoteField1 / appendNoteField1 / clearNoteField1.\n\n"
     "GOOGLE SHEETS INTEGRATION & AUTO-SYNC WORKFLOW:\n"
     "- GOOGLE SHEETS IS THE SOURCE OF TRUTH: Always prioritize Google Sheets data over canvas state when there are conflicts.\n"
